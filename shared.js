@@ -1,5 +1,5 @@
 // URL SCRIPT GOOGLE ANDA (deploy dari Code.gs)
-const API='https://script.google.com/macros/s/AKfycbwSZYK5JC5Xb4GVTUskvQxvJUA3h6tLWkwTvOPXoGpmFqEfVaGJYXA4fOUUgMUZhxpgdA/exec';
+const API='https://script.google.com/macros/s/AKfycbz8D-1eJ_jzkyxNc9BtmtUiv0DYgJvflk3TRwQYpI5xhvPQa2KhmCDyo_jkuvpKuAK6vA/exec';
 const $=i=>document.getElementById(i);
 const post=b=>fetch(API,{method:'POST',body:JSON.stringify(b),headers:{'Content-Type':'text/plain;charset=utf-8'}}).then(r=>r.json());
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -27,7 +27,7 @@ function applyCfg(c,root=document){
   root.querySelectorAll('[data-k]').forEach(e=>{e.textContent=c[e.dataset.k]||'';e.style.setProperty('--f',(c['s_'+e.dataset.k]||100)/100)});
   const P=Math.min(100,Math.max(0,c.tPos??50)),s1=root.querySelector('#sp1'),s2=root.querySelector('#sp2'),ev=root.querySelector('.evt');
   if(s1&&s2){s1.style.flexGrow=P;s2.style.flexGrow=100-P}
-  if(ev)ev.hidden=!(c.loc||c.date);
+  if(ev){ev.hidden=!(c.loc||c.date);ev.style.setProperty('--ep',Math.min(100,Math.max(0,c.ePos??100)))} // grup lokasi & tanggal: 0 = atas header, 100 = bawah
   const h=root.querySelector('.hero'),b=root.querySelector('.hbg'),o=(c.bgX??50)+'% '+(c.bgY??50)+'%';
   h.style.minHeight=(c.hHeight||340)+'px';
   root.querySelector('.shade').style.opacity=(c.bgDark??55)/100;
