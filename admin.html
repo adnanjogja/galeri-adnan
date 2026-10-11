@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin · Galeri Kenangan</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,500;1,700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+[hidden]{display:none!important}
+h2,h3{font-family:'Playfair Display',serif;margin:0 0 12px}
+.lg{min-height:100dvh;display:grid;place-items:center;padding:20px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:18px;margin-bottom:16px}
+.lg .card{width:min(100%,380px);animation:up 1s cubic-bezier(.2,.7,.2,1) backwards}
+@keyframes up{from{opacity:0;transform:translateY(18px)}}
+label{display:grid;gap:6px;font-size:.8rem;color:var(--mut);margin-bottom:12px}
+input:not([type=range]):not([type=file]){width:100%;padding:12px;background:#000;color:var(--tx);border:1px solid #3a3528;border-radius:10px;font-size:16px}
+input[type=range]{width:100%;accent-color:var(--gold)}
+input[type=file]{color:var(--mut);font-size:.8rem}
+output{float:right;color:var(--gold)}
+.err{color:#e57373;margin:0 0 10px;min-height:1.2em;font-size:.85rem}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--ln);position:sticky;top:0;z-index:5;background:#0a0a0af0;backdrop-filter:blur(8px)}
+.top b{font:italic 600 1.15rem 'Playfair Display',serif;color:var(--gold)}
+.top a,.top button{color:var(--tx);background:none;border:1px solid #3a3528;border-radius:20px;padding:7px 14px;font-size:.8rem;text-decoration:none;margin-left:6px}
+.tabs{display:flex;gap:6px;max-width:1000px;margin:14px auto 0;padding:0 18px}
+.tabs button{background:none;border:1px solid var(--ln);color:var(--mut);border-radius:20px;padding:8px 18px;transition:.3s}
+.tabs button.on{border-color:var(--gold);color:var(--gold)}
+main{max-width:1000px;margin:auto;padding:16px 18px 40px;animation:up .8s backwards}
+.two{display:grid;gap:16px}
+@media(min-width:860px){.two{grid-template-columns:1fr 1fr;align-items:start}.sticky{position:sticky;top:70px}}
+.pv .hero{border-radius:12px;border:1px solid var(--ln)}
+.pv .in{padding:28px 14px 40px}
+.pv small{color:var(--mut);display:block;margin-top:8px;text-align:center}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.row{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:10px;margin-bottom:10px;transition:opacity .4s}
+.row img,.row .broken{width:64px;height:64px;object-fit:cover;border-radius:8px;cursor:pointer;background:#222;padding:0}
+.meta{min-width:0;font-size:.78rem;color:var(--mut);overflow-wrap:anywhere}
+.meta strong{display:block;color:var(--gold);font-size:.9rem}
+.del{background:none;border:1px solid #7a2e2e;color:#e57373;border-radius:8px;padding:9px 12px;transition:.3s}
+.del:hover{background:#7a2e2e;color:#fff}
+.mut{color:var(--mut);text-align:center}
+</style>
+</head>
+<body>
+
+<div class="lg" id="login">
+  <form class="card" id="lf">
+    <h2>Masuk Admin</h2>
+    <label>Username<input id="u" autocomplete="username" required></label>
+    <label>Password<input id="p" type="password" autocomplete="current-password" required></label>
+    <p class="err" id="le" role="alert"></p>
+    <button class="btn p" id="lbtn">Masuk</button>
+    <a href="index.html" class="mut">← Kembali ke galeri</a>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <nav class="top"><b>Panel Admin</b><div><a href="index.html">Lihat galeri</a><button id="out">Keluar</button></div></nav>
+  <div class="tabs"><button class="on" data-t="s">Pengaturan</button><button data-t="f">Foto <span id="n"></span></button></div>
+  <main>
+    <section id="ts" class="two">
+      <div class="sticky pv">
+        <div class="hero" id="pv"><div class="hbg"></div><div class="shade"></div>
+          <div class="in"><p class="eb" data-k="eyebrow"></p><h1 data-k="title"></h1><p class="sub" data-k="sub"></p></div></div>
+        <small>Pratinjau header (berubah langsung)</small>
+      </div>
+      <div>
+        <div class="card"><h3>Teks acara</h3>
+          <label>Jenis acara<input data-f="eyebrow" maxlength="60"></label>
+          <label>Nama acara / judul<input data-f="title" maxlength="80"></label>
+          <label>Sub-judul<input data-f="sub" maxlength="120"></label>
+          <label>Lokasi acara (footer)<input data-f="loc" maxlength="120" placeholder="Gedung Serbaguna, Kediri"></label>
+          <label>Tanggal acara (footer)<input data-f="date" maxlength="60" placeholder="Sabtu, 20 Desember 2026"></label>
+        </div>
+        <div class="card"><h3>Background header</h3>
+          <label>Pilih gambar<input type="file" id="bgf" accept="image/*"></label>
+          <label>Redupkan gambar (overlay gelap)<output></output><input type="range" data-f="bgDark" min="0" max="90"></label>
+          <label>Zoom / ukuran gambar<output></output><input type="range" data-f="bgZoom" min="100" max="250"></label>
+          <label>Posisi crop horizontal<output></output><input type="range" data-f="bgX" min="0" max="100"></label>
+          <label>Posisi crop vertikal<output></output><input type="range" data-f="bgY" min="0" max="100"></label>
+          <label>Tinggi header (px)<output></output><input type="range" data-f="hHeight" min="220" max="620" step="10"></label>
+          <div class="btns"><button class="btn" id="bgx">Hapus background</button></div>
+        </div>
+        <div class="btns"><button class="btn p" id="save">Simpan perubahan</button></div>
+      </div>
+    </section>
+    <section id="tf" hidden><div id="rows"></div></section>
+  </main>
+</div>
+
+<div class="lb" id="lb"><button class="x" aria-label="Tutup">✕</button><img id="li" alt="Foto"><p id="lc"></p></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="shared.js"></script>
+<script>
+let H='',cfg={},bg=null,clr=false;
+const ss=(k,v)=>{try{v===undefined?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch(e){}};
+const gs=k=>{try{return sessionStorage.getItem(k)}catch(e){return null}};
+const pv=$('pv'),ins=document.querySelectorAll('[data-f]');
+
+async function enter(h){
+  const r=await post({action:'list',h});
+  if(!r.success)return false;
+  H=h;ss('h',h);$('login').hidden=true;$('app').hidden=false;
+  cfg=r.config;fill();rows(r.photos||[]);return true;
+}
+$('lf').onsubmit=async e=>{
+  e.preventDefault();$('le').textContent='';const b=$('lbtn');b.disabled=true;
+  try{
+    const h=await sha('gp|'+$('u').value.trim().toLowerCase()+'|'+$('p').value);
+    if(!await enter(h)){$('le').textContent='Username atau password salah.';await new Promise(r=>setTimeout(r,1500))}
+  }catch(x){$('le').textContent='Tidak dapat terhubung. Buka halaman ini lewat HTTPS.'}
+  b.disabled=false;
+};
+const h0=gs('h');if(h0)enter(h0).catch(()=>{});
+$('out').onclick=()=>{ss('h');location.reload()};
+
+/* ===== Pengaturan ===== */
+function show(i){const o=i.closest('label').querySelector('output');if(o)o.textContent=i.value+(i.dataset.f==='bgDark'||i.dataset.f==='bgZoom'?'%':'')}
+function fill(){ins.forEach(i=>{i.value=cfg[i.dataset.f]??'';show(i)});applyCfg(cfg,pv)}
+ins.forEach(i=>i.oninput=()=>{cfg[i.dataset.f]=i.type==='range'?+i.value:i.value;show(i);applyCfg(cfg,pv)});
+$('bgf').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const b=await createImageBitmap(f,{imageOrientation:'from-image'}),s=Math.min(1,1800/b.width),c=document.createElement('canvas');
+    c.width=Math.round(b.width*s);c.height=Math.round(b.height*s);c.getContext('2d').drawImage(b,0,0,c.width,c.height);
+    bg=c.toDataURL('image/jpeg',.82).split(',')[1];clr=false;cfg.bgId='local';
+    const hb=pv.querySelector('.hbg');hb.style.backgroundImage='url(data:image/jpeg;base64,'+bg+')';hb.classList.add('on');applyCfg(cfg,pv);
+  }catch(x){toast('Gambar tidak dapat dibaca')}
+};
+$('bgx').onclick=()=>{bg=null;clr=true;cfg.bgId='';$('bgf').value='';applyCfg(cfg,pv)};
+$('save').onclick=async()=>{
+  const b=$('save');b.disabled=true;b.textContent='Menyimpan…';
+  try{
+    const c={...cfg};delete c.bgId;
+    const r=await post({action:'config',h:H,config:c,bgBase64:bg,clearBg:clr});
+    if(!r.success)throw 0;
+    cfg=r.config;bg=null;clr=false;$('bgf').value='';fill();toast('Perubahan tersimpan. Halaman tamu akan ikut berubah.');
+  }catch(e){toast('Gagal menyimpan. Coba lagi.')}
+  b.disabled=false;b.textContent='Simpan perubahan';
+};
+document.querySelectorAll('.tabs button').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===t));
+  $('ts').hidden=t.dataset.t!=='s';$('tf').hidden=t.dataset.t!=='f';
+});
+
+/* ===== Foto & pengunggah ===== */
+const cnt=()=>{const n=$('rows').querySelectorAll('.row').length;$('n').textContent=n?'('+n+')':''};
+function rows(ps){
+  const r=$('rows');r.innerHTML='';
+  if(!ps.length){r.innerHTML='<p class="mut">Belum ada foto yang diunggah.</p>';cnt();return}
+  ps.filter(p=>p.fileId).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)).forEach(p=>{
+    const d=document.createElement('div');d.className='row';
+    const im=document.createElement('img');im.alt='Foto dari '+(p.uploaderName||'tamu');im.loading='lazy';
+    im.onclick=()=>lbOpen(p.fileId,p.uploaderName||'Tamu');setImg(im,thumbs(p.fileId,200));
+    const m=document.createElement('div');m.className='meta';
+    const s=document.createElement('strong');s.textContent=p.uploaderName||'Tamu';
+    const t=new Date(p.timestamp);
+    m.append(s,(isNaN(t)?'':t.toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'})+' · ')+'IP '+(p.ipAddress||'-'));
+    const x=document.createElement('button');x.className='del';x.textContent='Hapus';x.onclick=()=>del(p,d);
+    d.append(im,m,x);r.appendChild(d);
+  });
+  cnt();
+}
+async function del(p,d){
+  if(!confirm('Hapus foto dari '+(p.uploaderName||'tamu')+'?\nFoto dan data pengunggah akan dihapus permanen dari Google Drive.'))return;
+  d.style.opacity=.4;
+  try{
+    const r=await post({action:'delete',h:H,fileId:p.fileId});
+    if(!r.success)throw 0;
+    d.style.opacity=0;setTimeout(()=>{d.remove();cnt()},400);toast('Foto dan data pengunggah dihapus');
+  }catch(e){d.style.opacity=1;toast('Gagal menghapus. Coba lagi.')}
+}
+</script>
+</body>
+</html>

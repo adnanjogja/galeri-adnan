@@ -1,0 +1,28 @@
+:root{--bg:#0a0a0a;--gold:#D4AF37;--tx:#f5f0e6;--card:#171512;--mut:#9a9486;--ln:#2e2a22}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 15px/1.6 'Montserrat',system-ui,sans-serif}
+button,input{font:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.hero{position:relative;overflow:hidden;min-height:340px;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 0,#2a2210,#0a0a0a 70%)}
+.hbg{position:absolute;inset:0;background-size:cover;background-position:50% 50%;opacity:0;transition:opacity 1.4s,transform .5s}
+.hbg.on{opacity:1}
+.shade{position:absolute;inset:0;background:#000;opacity:.55;transition:opacity .4s}
+.hero::after{content:'';position:absolute;left:0;right:0;bottom:0;height:80px;background:linear-gradient(transparent,var(--bg))}
+.in{position:relative;z-index:1;padding:44px 20px 60px;max-width:720px}
+.eb{margin:0;color:var(--gold);letter-spacing:.3em;font-size:.8rem}
+h1{font:italic 700 clamp(2.3rem,9vw,4.3rem)/1.12 'Playfair Display',serif;margin:10px 0;background:linear-gradient(#f3dd8f,#c9a227 60%,#fff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{margin:0;color:#e0d9c7;font-weight:300}
+.btn{flex:1;min-height:48px;padding:0 18px;border-radius:10px;border:1px solid var(--gold);background:none;color:var(--gold);font-weight:600;transition:.3s}
+.btn.p{background:var(--gold);color:#000}.btn:disabled{opacity:.5}
+.x{width:40px;height:40px;border-radius:50%;border:1px solid #3a3222;background:#14110c;color:var(--tx)}
+.lb{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(5,4,3,.94);opacity:0;visibility:hidden;transition:opacity .5s,visibility .5s}
+.lb.on{opacity:1;visibility:visible}
+.lb img{max-width:92vw;max-height:84dvh;border-radius:4px;box-shadow:0 20px 70px #000;transform:scale(.88);opacity:0;transition:transform .6s cubic-bezier(.2,.8,.2,1),opacity .5s}
+.lb.on img{transform:none;opacity:1}
+.lb .x{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px}
+.lb p{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));margin:0;font:italic 1rem 'Playfair Display',serif;color:#d9d2c0}
+.broken{padding:30px 10px;font-size:.75rem;color:#8a8470;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translate(-50%,12px);z-index:99;max-width:90%;background:#1b1810;border:1px solid var(--gold);padding:12px 18px;border-radius:10px;font-size:.85rem;opacity:0;pointer-events:none;transition:.4s}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
