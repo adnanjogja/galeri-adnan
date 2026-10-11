@@ -8,7 +8,7 @@ button,input{font:inherit}button{cursor:pointer}
 .hbg{position:absolute;inset:0;background-size:cover;background-position:50% 50%;opacity:0;transition:opacity 1.4s,transform .5s}
 .hbg.on{opacity:1}
 .shade{position:absolute;inset:0;background:var(--bg);opacity:.55;transition:opacity .4s}
-.hero::before,.hero::after{content:'';position:absolute;left:0;right:0;height:80px;pointer-events:none}
+.hero::before,.hero::after{content:'';position:absolute;left:0;right:0;height:100px;pointer-events:none}
 .hero::before{top:0;z-index:1;background:linear-gradient(var(--bg),transparent)}
 .hero::after{bottom:0;background:linear-gradient(transparent,var(--bg))}
 .in{position:relative;z-index:1;padding:44px 20px 60px;max-width:720px}
