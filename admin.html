@@ -103,11 +103,13 @@ tr{transition:opacity .4s}
           <hr class="sep">
           <label>Posisi vertikal grup teks di header (atas ↔ bawah)<output></output><input type="range" data-f="tPos" min="0" max="100"></label>
         </div>
-        <div class="card"><h3>Lokasi &amp; Tanggal (di bawah header)</h3>
+        <div class="card"><h3>Lokasi &amp; Tanggal</h3>
           <label>Lokasi acara<input data-f="loc" maxlength="120" placeholder="Gedung Serbaguna, Kediri"></label>
           <label>Ukuran teks<output></output><input type="range" data-f="s_loc" min="60" max="160"></label>
           <label>Tanggal acara<input data-f="date" maxlength="60" placeholder="Sabtu, 20 Desember 2026"></label>
           <label>Ukuran teks<output></output><input type="range" data-f="s_date" min="60" max="160"></label>
+          <hr class="sep">
+          <label>Posisi vertikal grup teks di header (atas ↔ bawah)<output></output><input type="range" data-f="ePos" min="0" max="100"></label>
         </div>
         <div class="card"><h3>Background Header</h3>
           <div class="btns two" style="margin-bottom:14px">
@@ -163,7 +165,7 @@ async function enter(h){
   const r=await post({action:'list',h});
   if(!r.success)return false;
   H=h;ss('h',h);$('login').hidden=true;$('app').hidden=false;
-  cfg=r.config||{};fill();rows(r.photos||[]);return true;
+  cfg={ePos:100,...(r.config||{})};fill();rows(r.photos||[]);return true;
 }
 $('lf').onsubmit=async e=>{
   e.preventDefault();$('le').textContent='';const b=$('lbtn');b.disabled=true;
@@ -248,7 +250,7 @@ $('save').onclick=async()=>{
     const c={...cfg};delete c.bgId;
     const r=await post({action:'config',h:H,config:c,bgBase64:bg,clearBg:clr});
     if(!r.success)throw 0;
-    cfg=r.config;bg=null;clr=false;fill();toast('Pengaturan tersimpan. Halaman tamu akan ikut berubah.');
+    cfg={ePos:100,...r.config};bg=null;clr=false;fill();toast('Pengaturan tersimpan. Halaman tamu akan ikut berubah.');
   }catch(e){toast('Gagal menyimpan. Coba lagi.')}
   b.disabled=false;b.textContent='Simpan pengaturan';
 };
