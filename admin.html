@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=1100">
 <meta name="robots" content="noindex,nofollow">
 <title>Admin · Galeri Kenangan</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,500;1,700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
@@ -10,14 +10,13 @@
 <style>
 [hidden]{display:none!important}
 h2,h3{font-family:'Playfair Display',serif;margin:0 0 12px}
-.lg{min-height:100dvh;display:grid;place-items:center;padding:20px}
+.lg{min-height:100vh;display:grid;place-items:center;padding:20px}
 .card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:18px;margin-bottom:16px}
 .lg .card{width:min(100%,380px);animation:up 1s cubic-bezier(.2,.7,.2,1) backwards}
 @keyframes up{from{opacity:0;transform:translateY(18px)}}
 label{display:grid;gap:6px;font-size:.8rem;color:var(--mut);margin-bottom:12px}
 input:not([type=range]):not([type=file]){width:100%;padding:12px;background:#000;color:var(--tx);border:1px solid #3a3528;border-radius:10px;font-size:16px}
 input[type=range]{width:100%;accent-color:var(--gold)}
-input[type=file]{color:var(--mut);font-size:.8rem}
 output{float:right;color:var(--gold)}
 .err{color:#e57373;margin:0 0 10px;min-height:1.2em;font-size:.85rem}
 .top{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--ln);position:sticky;top:0;z-index:5;background:#0a0a0af0;backdrop-filter:blur(8px)}
@@ -31,24 +30,32 @@ main{max-width:1000px;margin:auto;padding:16px 18px 40px;animation:up .8s backwa
 table{width:100%;border-collapse:collapse;font-size:.85rem}
 th{text-align:left;color:var(--gold);font-weight:600;padding:10px;border-bottom:1px solid var(--ln);white-space:nowrap}
 td{padding:10px;border-bottom:1px solid var(--ln);vertical-align:middle}
-td:nth-child(3){min-width:150px;overflow-wrap:anywhere}
+td:nth-child(3){min-width:160px;overflow-wrap:anywhere}
 td img{width:64px;height:64px;object-fit:cover;border-radius:10px;cursor:pointer;display:block;background:#222}
 td .broken{width:64px;padding:8px 2px;font-size:.6rem}
 tr{transition:opacity .4s}
 .del{background:none;border:1px solid #7a2e2e;color:#e57373;border-radius:8px;padding:9px 12px;transition:.3s}
 .del:hover{background:#7a2e2e;color:#fff}
 .mut{color:var(--mut);text-align:center}
-.two{display:grid;gap:16px}
-@media(min-width:860px){.two{grid-template-columns:1fr 1fr;align-items:start}.sticky{position:sticky;top:70px}}
-.pvb{background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:14px;overflow:hidden;transition:background .5s}
-.pvb footer{padding:26px 14px 22px}
-.pvs{color:var(--mut);display:block;margin-top:8px;text-align:center;font-size:.78rem}
+.two{display:grid;grid-template-columns:432px 1fr;gap:20px;align-items:start}
+#app{min-width:1000px} /* tampilan desktop dikunci (meta viewport width=1100 membuat HP ikut memakai layout ini) */
+.sticky{position:sticky;top:70px}
+.pfr{position:relative;width:408px;margin:0 auto;padding:9px;border-radius:50px;background:#0a0a0a;box-shadow:0 0 0 2px #2c2c2c,0 24px 60px #0008}
+.pfr::after{content:'';position:absolute;top:19px;left:50%;width:92px;height:24px;margin-left:-46px;border-radius:14px;background:#000;pointer-events:none}
+.pfr iframe{display:block;width:390px;height:780px;border:0;border-radius:42px;background:#000}
+.pvs{color:var(--mut);display:block;margin-top:10px;text-align:center;font-size:.78rem}
 .btns{display:flex;gap:10px;flex-wrap:wrap}
+.btns.two .btn{flex:1 1 0}
 .btn.on{background:var(--gold);color:#000}
 .pal{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
-.pal button{width:38px;height:38px;border-radius:50%;border:2px solid transparent;outline:1px solid #3a3528;outline-offset:2px;transition:.3s}
+.pal button{width:34px;height:34px;border-radius:50%;border:2px solid transparent;outline:1px solid #3a3528;outline-offset:2px;transition:.3s}
 .pal button.on{border-color:#fff;transform:scale(1.14)}
-.fine{font-size:.75rem;color:var(--mut);margin:0 0 12px}
+.sep{border:0;border-top:1px solid var(--ln);margin:6px 0 14px}
+.md{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:rgba(5,4,3,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;visibility:hidden;transition:opacity .45s,visibility .45s}
+.md.on{opacity:1;visibility:visible}
+.mb{width:min(100%,400px);background:var(--card);border:1px solid #4a3d1c;border-radius:18px;padding:22px;box-shadow:0 30px 80px #000;transform:translateY(24px) scale(.95);transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+.md.on .mb{transform:none}
+.fine{font-size:.75rem;color:var(--mut);margin:0 0 14px}
 </style>
 </head>
 <body>
@@ -65,7 +72,7 @@ tr{transition:opacity .4s}
 </div>
 
 <div id="app" hidden>
-  <nav class="top"><b>Panel Admin</b><div><a href="index.html">Lihat galeri</a><button id="out">Keluar</button></div></nav>
+  <nav class="top"><b>Panel Admin</b><div><button id="pw">Ubah Password</button><a href="index.html">Lihat galeri</a><button id="out">Keluar</button></div></nav>
   <div class="tabs"><button class="on" data-t="f">Daftar Foto <span id="n"></span></button><button data-t="s">Pengaturan Tampilan</button></div>
   <main>
     <!-- TAB 1 (kiri): daftar foto -->
@@ -82,51 +89,59 @@ tr{transition:opacity .4s}
     <!-- TAB 2 (kanan): pengaturan tampilan -->
     <section id="ts" class="two" hidden>
       <div class="sticky">
-        <div class="pvb" id="pvb">
-          <div class="hero"><div class="hbg"></div><div class="shade"></div>
-            <div class="in"><p class="eb" data-k="eyebrow"></p><h1 data-k="title"></h1><p class="sub" data-k="sub"></p></div></div>
-          <footer><div class="orn">✦</div><p class="fl" data-k="loc"></p><p class="fd" data-k="date"></p></footer>
-        </div>
-        <small class="pvs">Pratinjau header &amp; footer (berubah langsung)</small>
+        <div class="pfr"><iframe id="pvf" src="index.html#preview" title="Pratinjau halaman tamu"></iframe></div>
+        <small class="pvs">Pratinjau langsung = halaman tamu yang sebenarnya (bisa di-scroll)</small>
       </div>
       <div>
-        <div class="card"><h3>Teks Acara</h3>
+        <div class="card"><h3>Teks Header</h3>
           <label>Jenis acara<input data-f="eyebrow" maxlength="60"></label>
           <label>Ukuran teks<output></output><input type="range" data-f="s_eyebrow" min="60" max="160"></label>
           <label>Nama acara / judul<input data-f="title" maxlength="80"></label>
           <label>Ukuran teks<output></output><input type="range" data-f="s_title" min="60" max="160"></label>
           <label>Sub-judul<input data-f="sub" maxlength="120"></label>
           <label>Ukuran teks<output></output><input type="range" data-f="s_sub" min="60" max="160"></label>
-          <label>Lokasi acara (footer)<input data-f="loc" maxlength="120" placeholder="Gedung Serbaguna, Kediri"></label>
+          <hr class="sep">
+          <label>Posisi vertikal grup teks di header (atas ↔ bawah)<output></output><input type="range" data-f="tPos" min="0" max="100"></label>
+        </div>
+        <div class="card"><h3>Lokasi &amp; Tanggal (di bawah header)</h3>
+          <label>Lokasi acara<input data-f="loc" maxlength="120" placeholder="Gedung Serbaguna, Kediri"></label>
           <label>Ukuran teks<output></output><input type="range" data-f="s_loc" min="60" max="160"></label>
-          <label>Tanggal acara (footer)<input data-f="date" maxlength="60" placeholder="Sabtu, 20 Desember 2026"></label>
+          <label>Tanggal acara<input data-f="date" maxlength="60" placeholder="Sabtu, 20 Desember 2026"></label>
           <label>Ukuran teks<output></output><input type="range" data-f="s_date" min="60" max="160"></label>
         </div>
         <div class="card"><h3>Background Header</h3>
-          <label>Pilih gambar<input type="file" id="bgf" accept="image/*"></label>
+          <div class="btns two" style="margin-bottom:14px">
+            <button class="btn" id="bgp" type="button">🖼 Pilih gambar</button>
+            <button class="btn" id="bgx" type="button">🗑 Hapus background</button>
+          </div>
+          <input type="file" id="bgf" accept="image/*" hidden>
           <label>Redupkan gambar (overlay)<output></output><input type="range" data-f="bgDark" min="0" max="90"></label>
           <label>Zoom / ukuran gambar<output></output><input type="range" data-f="bgZoom" min="100" max="250"></label>
           <label>Posisi crop horizontal<output></output><input type="range" data-f="bgX" min="0" max="100"></label>
           <label>Posisi crop vertikal<output></output><input type="range" data-f="bgY" min="0" max="100"></label>
           <label>Tinggi header<output></output><input type="range" data-f="hHeight" min="220" max="620" step="10"></label>
-          <div class="btns"><button class="btn" id="bgx" type="button">Hapus background</button></div>
         </div>
         <div class="card"><h3>Tema Warna</h3>
-          <label>Palet warna teks (10 pilihan)</label><div class="pal" id="pal"></div>
+          <label>Palet warna teks (22 pilihan; Hitam Pekat &amp; Charcoal untuk background putih)</label><div class="pal" id="pal"></div>
           <label>Warna background halaman</label>
-          <div class="btns"><button class="btn" data-m="dark" type="button">⬛ Hitam</button><button class="btn" data-m="light" type="button">⬜ Putih</button></div>
+          <div class="btns two"><button class="btn" data-m="dark" type="button">⬛ Hitam</button><button class="btn" data-m="light" type="button">⬜ Putih</button></div>
         </div>
-        <div class="btns" style="margin-bottom:16px"><button class="btn p" id="save">Simpan pengaturan</button></div>
-        <div class="card"><h3>Akun Admin</h3>
-          <p class="fine">Ganti username dan password admin (password minimal 8 karakter).</p>
-          <label>Username baru<input id="nu" autocomplete="off"></label>
-          <label>Password baru<input id="np" type="password" autocomplete="new-password"></label>
-          <label>Ulangi password baru<input id="np2" type="password" autocomplete="new-password"></label>
-          <div class="btns"><button class="btn p" id="cbtn" type="button">Ganti username &amp; password</button></div>
-        </div>
+        <div class="btns"><button class="btn p" id="save">Simpan pengaturan</button></div>
       </div>
     </section>
   </main>
+</div>
+
+<!-- Pop-up ubah password -->
+<div class="md" id="md">
+  <div class="mb" role="dialog" aria-modal="true" aria-label="Akun Admin">
+    <h3>Akun Admin</h3>
+    <p class="fine">Password minimal 8 karakter. Setelah diganti, gunakan kredensial baru saat login berikutnya.</p>
+    <label>Username baru<input id="nu" autocomplete="off"></label>
+    <label>Password baru<input id="np" type="password" autocomplete="new-password"></label>
+    <label>Ulangi password baru<input id="np2" type="password" autocomplete="new-password"></label>
+    <div class="btns two"><button class="btn" id="cc" type="button">Batal</button><button class="btn p" id="cbtn" type="button">Simpan</button></div>
+  </div>
 </div>
 
 <div class="lb" id="lb">
@@ -138,12 +153,12 @@ tr{transition:opacity .4s}
 
 <script src="shared.js"></script>
 <script>
-let H='',cfg={},bg=null,clr=false,ROWS=[];
+let H='',cfg={},bg=null,clr=false,ROWS=[],pt=0,bgSent=null;
 const ss=(k,v)=>{try{v===undefined?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch(e){}};
 const gs=k=>{try{return sessionStorage.getItem(k)}catch(e){return null}};
-const pvb=$('pvb'),ins=document.querySelectorAll('[data-f]');
+const ins=document.querySelectorAll('[data-f]'),pvf=$('pvf');
 
-/* ===== Login (verifikasi hash di server) ===== */
+/* ===== Login (hash diverifikasi di server) ===== */
 async function enter(h){
   const r=await post({action:'list',h});
   if(!r.success)return false;
@@ -193,41 +208,55 @@ async function del(p,tr){
   }catch(e){tr.style.opacity=1;toast('Gagal menghapus. Coba lagi.')}
 }
 
-/* ===== Pengaturan tampilan ===== */
+/* ===== Pengaturan tampilan + pratinjau (iframe halaman tamu) ===== */
+function sendPv(){
+  clearTimeout(pt);
+  pt=setTimeout(()=>{
+    const w=pvf.contentWindow;if(!w)return;
+    const m={type:'cfg',cfg:{...cfg}};
+    if(bgSent!==bg){m.bg=bg||'';bgSent=bg}
+    w.postMessage(m,'*');
+  },50);
+}
+addEventListener('message',e=>{if(e.source===pvf.contentWindow&&e.data&&e.data.type==='ready'){bgSent=null;sendPv()}});
 const unit=k=>k==='hHeight'?'px':'%';
 function show(i){const o=i.closest('label').querySelector('output');if(o)o.textContent=i.value+unit(i.dataset.f)}
-$('pal').append(...TN.map((n,i)=>{const b=document.createElement('button');b.type='button';b.title=n;b.setAttribute('aria-label',n);b.style.background=T[i][0];b.onclick=()=>{cfg.theme=i;paint()};return b}));
+$('pal').append(...TN.map((n,i)=>{const b=document.createElement('button');b.type='button';b.title=n;b.setAttribute('aria-label',n);b.style.background=T[i][i>19?3:0]; /* 2 palet terakhir = teks gelap: contoh warnanya diambil dari warna gelapnya */b.onclick=()=>{cfg.theme=i;paint()};return b}));
 document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{cfg.mode=b.dataset.m;paint()});
 function paint(){
-  applyCfg(cfg,pvb);
   [...$('pal').children].forEach((b,i)=>b.classList.toggle('on',i===(cfg.theme||0)));
   document.querySelectorAll('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===(cfg.mode||'dark')));
+  sendPv();
 }
 function fill(){ins.forEach(i=>{i.value=cfg[i.dataset.f]??'';show(i)});paint()}
 ins.forEach(i=>i.oninput=()=>{cfg[i.dataset.f]=i.type==='range'?+i.value:i.value;show(i);paint()});
 
+$('bgp').onclick=()=>$('bgf').click();
 $('bgf').onchange=async e=>{
   const f=e.target.files[0];if(!f)return;
   try{
     const b=await createImageBitmap(f,{imageOrientation:'from-image'}),s=Math.min(1,1800/b.width),c=document.createElement('canvas');
     c.width=Math.round(b.width*s);c.height=Math.round(b.height*s);c.getContext('2d').drawImage(b,0,0,c.width,c.height);
-    bg=c.toDataURL('image/jpeg',.82).split(',')[1];clr=false;cfg.bgId='local';
-    const hb=pvb.querySelector('.hbg');hb.style.backgroundImage='url(data:image/jpeg;base64,'+bg+')';hb.classList.add('on');paint();
+    bg=c.toDataURL('image/jpeg',.82).split(',')[1];clr=false;cfg.bgId='local';paint();
   }catch(x){toast('Gambar tidak dapat dibaca. Coba format JPG atau PNG.')}
+  e.target.value='';
 };
-$('bgx').onclick=()=>{bg=null;clr=true;cfg.bgId='';$('bgf').value='';paint()};
+$('bgx').onclick=()=>{bg=null;clr=true;cfg.bgId='';paint();toast('Background akan dihapus setelah disimpan')};
 $('save').onclick=async()=>{
   const b=$('save');b.disabled=true;b.textContent='Menyimpan…';
   try{
     const c={...cfg};delete c.bgId;
     const r=await post({action:'config',h:H,config:c,bgBase64:bg,clearBg:clr});
     if(!r.success)throw 0;
-    cfg=r.config;bg=null;clr=false;$('bgf').value='';fill();toast('Pengaturan tersimpan. Halaman tamu akan ikut berubah.');
+    cfg=r.config;bg=null;clr=false;fill();toast('Pengaturan tersimpan. Halaman tamu akan ikut berubah.');
   }catch(e){toast('Gagal menyimpan. Coba lagi.')}
   b.disabled=false;b.textContent='Simpan pengaturan';
 };
 
-/* ===== Ganti username & password ===== */
+/* ===== Pop-up ubah username & password ===== */
+const mc=()=>$('md').classList.remove('on');
+$('pw').onclick=()=>{$('md').classList.add('on');$('nu').focus()};
+$('cc').onclick=mc;$('md').onclick=e=>{if(e.target===$('md'))mc()};window.onEsc=mc;
 $('cbtn').onclick=async()=>{
   const u=$('nu').value.trim().toLowerCase(),p=$('np').value;
   if(u.length<3)return toast('Username minimal 3 karakter');
@@ -237,7 +266,7 @@ $('cbtn').onclick=async()=>{
   try{
     const nh=await sha('gp|'+u+'|'+p),r=await post({action:'creds',h:H,nh});
     if(!r.success)throw 0;
-    H=nh;ss('h',nh);['nu','np','np2'].forEach(i=>$(i).value='');
+    H=nh;ss('h',nh);['nu','np','np2'].forEach(i=>$(i).value='');mc();
     toast('Username & password diganti. Pakai yang baru saat login berikutnya.');
   }catch(e){toast('Gagal mengganti. Coba lagi.')}
   b.disabled=false;
