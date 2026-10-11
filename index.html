@@ -12,7 +12,7 @@ if(location.hash==='#preview'&&parent!==window)document.documentElement.classNam
 .in>*{animation:up 1.3s cubic-bezier(.2,.7,.2,1) backwards}
 .in>:nth-child(2){animation-delay:.25s}.in>:nth-child(3){animation-delay:.5s}
 @keyframes up{from{opacity:0;transform:translateY(22px);filter:blur(6px)}}
-.vbtn{margin-top:18px;display:inline-flex;align-items:center;gap:12px;padding:15px 32px;border-radius:999px;border:1px solid color-mix(in srgb,var(--gold) 50%,transparent);background:color-mix(in srgb,var(--gold) 14%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);color:var(--tx);font:600 .95rem 'Montserrat',sans-serif;letter-spacing:.04em;box-shadow:0 8px 32px #0003,inset 0 1px 0 #fff4;transition:transform .5s cubic-bezier(.2,.8,.2,1),background .5s,box-shadow .5s}
+.vbtn{margin:16px 0 26px;display:inline-flex;align-items:center;gap:12px;padding:15px 32px;border-radius:999px;border:1px solid color-mix(in srgb,var(--gold) 50%,transparent);background:color-mix(in srgb,var(--gold) 14%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);color:var(--tx);font:600 .95rem 'Montserrat',sans-serif;letter-spacing:.04em;box-shadow:0 8px 32px #0003,inset 0 1px 0 #fff4;transition:transform .5s cubic-bezier(.2,.8,.2,1),background .5s,box-shadow .5s}
 .vbtn svg{width:20px;height:20px;fill:none;stroke:var(--gold);stroke-width:1.6;stroke-linejoin:round;transition:transform .6s}
 .vbtn:hover,.vbtn:focus-visible{background:color-mix(in srgb,var(--gold) 24%,transparent);transform:translateY(-3px);box-shadow:0 14px 40px #0004,0 0 0 1px var(--gold),inset 0 1px 0 #fff6}
 .vbtn:hover svg{transform:rotate(-8deg) scale(1.12)}
@@ -68,8 +68,11 @@ if(location.hash==='#preview'&&parent!==window)document.documentElement.classNam
 .glass:active{transform:scale(.97)}
 .glass.p{border-color:var(--gold);box-shadow:0 8px 24px rgba(0,0,0,.35),0 0 18px rgba(212,175,55,.3),inset 0 1px 0 rgba(255,255,255,.45)}
 .glass:disabled{opacity:.55}
-.evt{text-align:center;padding:18px 20px 4px}
+/* Grup lokasi & tanggal: di dalam header, posisi vertikal diatur slider (--ep: 0 = atas header, 100 = bawah header).
+   Rumus sama dengan grup teks header, jadi di 0 menempel di tepi atas dan di 100 menempel di tepi bawah. */
+.hero .evt{position:absolute;z-index:1;left:0;right:0;top:calc(var(--ep,100)*1%);transform:translateY(calc(var(--ep,100)*-1%));padding:16px 20px 22px;text-align:center}
 .evt .orn{margin-bottom:12px}
+.hero .orn::before,.hero .orn::after{width:86px} /* tetap, tidak ikut lebar jendela (22vw) agar sama di HP, bingkai, dan pratinjau */
 footer{padding:26px 20px calc(30px + env(safe-area-inset-bottom))}
 footer .fc{margin-top:0}
 /* Pratinjau di admin: layar 390px tanpa scrollbar, jarak atas sama dengan bingkai HP (ruang notch) */
@@ -100,16 +103,16 @@ body::before{content:'';position:fixed;inset:-15%;z-index:-1;pointer-events:none
     <p class="sub" data-k="sub">Abadikan momen indah bersama kami</p>
   </div>
   <i class="sp" id="sp2"></i>
+  <section class="evt" hidden>
+    <div class="orn">✦</div>
+    <p class="fl" data-k="loc"></p>
+    <p class="fd" data-k="date"></p>
+  </section>
 </header>
 
-<section class="evt" hidden>
-  <div class="orn">✦</div>
-  <p class="fl" data-k="loc"></p>
-  <p class="fd" data-k="date"></p>
-</section>
-
-<section class="gh"><h2>Galeri Kenangan</h2><small id="cnt"></small><i></i>
+<section class="gh">
   <button class="vbtn" id="open"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Bagikan Kenangan</button>
+  <h2>Galeri Kenangan</h2><small id="cnt"></small><i></i>
 </section>
 <main class="gal" id="gal"></main>
 <p class="msg" id="emp" hidden>Belum ada kenangan. Jadilah yang pertama membagikan ✦</p>
