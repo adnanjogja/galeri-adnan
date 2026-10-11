@@ -1,5 +1,5 @@
 // URL SCRIPT GOOGLE ANDA (deploy baru dari Code.gs)
-const API='https://script.google.com/macros/s/AKfycbwVGei0i4DvbiDyXFzaQp2nCCRKPDr_R5p9vdaXSrGdl1hqNeF_vWf6CR-mPIhabOzu9Q/exec';
+const API='https://script.google.com/macros/s/AKfycby1qUJo86dv7iOeZTF5PckM9kWYx3bbEksLS3A9fAb_gDTjlrPFzX8_AVwXZqi6bts9dg/exec';
 const $=i=>document.getElementById(i);
 const post=b=>fetch(API,{method:'POST',body:JSON.stringify(b),headers:{'Content-Type':'text/plain;charset=utf-8'}}).then(r=>r.json());
 const sha=async s=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))].map(b=>b.toString(16).padStart(2,'0')).join('');
