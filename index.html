@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<title>Live Digital Gallery - Adnan &amp; Kartika</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--gold:#D4AF37;--text:#f5f5f5;--card:#1a1a1a;--muted:#9a9a9a;--line:#2e2e2e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Montserrat',system-ui,sans-serif;text-align:center;padding-bottom:env(safe-area-inset-bottom)}
+button{font:inherit;cursor:pointer}
+.header{padding:36px 16px 26px;background:linear-gradient(180deg,#141414,transparent);border-bottom:1px solid rgba(212,175,55,.2)}
+.eyebrow{color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-size:.8rem;margin:0}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,8vw,3rem);margin:8px 0;background:linear-gradient(#D4AF37,#fff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:#999;margin:0 0 20px;font-size:.9rem}
+.panel{max-width:420px;margin:0 auto;padding:18px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.row{display:flex;gap:10px}
+.btn{flex:1;min-height:52px;border:0;border-radius:10px;font-weight:600;font-size:.95rem;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-gold{background:var(--gold);color:#000}
+.btn-line{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+.hint{font-size:.75rem;color:#777;margin:12px 0 0}
+.link{background:none;border:0;color:#aaa;text-decoration:underline;font-size:.75rem;margin-top:8px;padding:6px}
+label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:6px;text-align:left}
+input[type=text]{width:100%;padding:14px;font-size:16px;background:#000;color:#fff;border:1px solid #444;border-radius:10px;font-family:inherit}
+input[type=text]:focus{outline:2px solid var(--gold);border-color:transparent}
+.gal-head{display:flex;justify-content:space-between;align-items:center;max-width:1000px;margin:24px auto 0;padding:0 20px}
+.gal-head h2{font-family:'Playfair Display',serif;font-size:1.3rem;margin:0}
+.gal-head small{color:#888;font:400 .75rem 'Montserrat',sans-serif;margin-left:6px}
+.gal-head button{background:none;border:1px solid #444;color:#ccc;border-radius:20px;padding:8px 14px;font-size:.8rem}
+.gallery{column-count:2;column-gap:12px;padding:16px;max-width:1000px;margin:0 auto}
+@media(min-width:768px){.gallery{column-count:3}}
+.item{break-inside:avoid;margin-bottom:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer;position:relative;text-align:left}
+.item:focus-visible{outline:2px solid var(--gold)}
+.item img{width:100%;display:block;min-height:120px;background:#222}
+.broken{padding:36px 10px;font-size:.75rem;color:#777;text-align:center}
+.play{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);border-radius:20px;padding:4px 9px;font-size:.72rem}
+.info{padding:10px;font-size:.72rem;color:#aaa}
+.info strong{display:block;color:var(--gold);font-size:.85rem;margin:2px 0;word-break:break-word}
+.state{column-span:all;color:#888;padding:30px 16px;text-align:center}
+.skel{height:180px;margin-bottom:12px;border-radius:10px;break-inside:avoid;background:linear-gradient(90deg,#161616,#232323,#161616);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.cam,.prev,.lb{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;background:#000}
+.show{display:flex!important}
+.cam video{flex:1;min-height:0;width:100%;object-fit:contain;background:#000}
+.cam video.mirror{transform:scaleX(-1)}
+.cam-top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top)) 14px 12px;background:linear-gradient(#000a,transparent)}
+.cam-bar{display:flex;flex-direction:column;align-items:center;gap:14px;padding:14px 20px calc(18px + env(safe-area-inset-bottom))}
+.modes{display:flex;gap:4px;background:#1c1c1c;border-radius:20px;padding:3px}
+.modes button{background:none;border:0;color:#aaa;padding:8px 20px;border-radius:18px;font-size:.85rem}
+.modes button.on{background:var(--gold);color:#000;font-weight:600}
+.modes.lock{pointer-events:none;opacity:.4}
+.ctrl{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:340px}
+.round{width:48px;height:48px;border-radius:50%;border:0;background:#222;color:#fff;font-size:1.2rem}
+.shutter{width:74px;height:74px;border-radius:50%;border:4px solid #fff;background:none;padding:4px}
+.shutter i{display:block;height:100%;border-radius:50%;background:#fff;transition:.2s}
+.shutter.vid i{background:#e53935}
+.shutter.rec i{border-radius:10px;transform:scale(.55)}
+.timer{color:#fff;background:#e53935;border-radius:12px;padding:4px 10px;font-size:.8rem;visibility:hidden}
+.timer.on{visibility:visible}
+.prev{align-items:center;gap:14px;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:#0a0a0a}
+.prev .media{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center}
+.prev .media img,.prev .media video{max-width:100%;max-height:100%;border-radius:10px}
+.box{width:100%;max-width:420px}
+.box .row{margin-top:14px}
+.lb{background:rgba(0,0,0,.95);align-items:center;justify-content:center;padding:12px}
+#lbBody{display:flex;align-items:center;justify-content:center;width:100%}
+.lb img{max-width:100%;max-height:85vh;border-radius:8px}
+.lb iframe{width:min(100%,900px);height:70vh;border:0;border-radius:8px}
+.lb .x{position:absolute;top:calc(10px + env(safe-area-inset-top));right:14px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:99;max-width:90%;background:#222;border:1px solid var(--gold);padding:12px 18px;border-radius:10px;font-size:.85rem;opacity:0;pointer-events:none;transition:.3s}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <p class="eyebrow">The Wedding Of</p>
+  <!-- NAMA ACARA BISA ANDA GANTI DI SINI -->
+  <h1>Adnan &amp; Kartika</h1>
+  <p class="sub">Abadikan momen indah bersama kami</p>
+  <div class="panel">
+    <div class="row">
+      <button class="btn btn-gold" onclick="openCam()">📸 Buka Kamera</button>
+      <button class="btn btn-line" onclick="$('fileGal').click()">🖼️ Dari Galeri</button>
+    </div>
+    <p class="hint">Foto &amp; video (maks. 20 detik) langsung tampil di galeri di bawah.</p>
+    <button class="link" onclick="$('fileCam').click()">Kamera tidak bisa dibuka? Pakai kamera bawaan HP</button>
+  </div>
+  <input type="file" id="fileGal" accept="image/*,video/*" hidden>
+  <input type="file" id="fileCam" accept="image/*,video/*" capture="environment" hidden>
+</header>
+
+<div class="gal-head">
+  <h2>Galeri Momen<small id="count"></small></h2>
+  <button onclick="loadGallery(true)">↻ Segarkan</button>
+</div>
+<main class="gallery" id="gallery"></main>
+
+<!-- Kamera -->
+<div class="cam" id="cam">
+  <video id="camVideo" playsinline muted autoplay></video>
+  <div class="cam-top">
+    <button class="round" onclick="closeCam()" aria-label="Tutup kamera">✕</button>
+    <span class="timer" id="timer">● 00:00</span>
+    <span style="width:48px"></span>
+  </div>
+  <div class="cam-bar">
+    <div class="modes" id="modes">
+      <button id="modePhoto" class="on" onclick="setMode('photo')">Foto</button>
+      <button id="modeVideo" onclick="setMode('video')">Video</button>
+    </div>
+    <div class="ctrl">
+      <span style="width:48px"></span>
+      <button class="shutter" id="shutter" onclick="shutter()" aria-label="Ambil"><i></i></button>
+      <button class="round" id="flip" onclick="flip()" aria-label="Putar kamera">🔄</button>
+    </div>
+  </div>
+</div>
+
+<!-- Pratinjau & kirim -->
+<div class="prev" id="prev">
+  <div class="media" id="prevMedia"></div>
+  <div class="box">
+    <label for="namaTamu">Nama Anda</label>
+    <input type="text" id="namaTamu" placeholder="Tulis nama Anda…" maxlength="40" autocomplete="name">
+    <div class="row">
+      <button class="btn btn-line" onclick="clearPending()">Batal</button>
+      <button class="btn btn-gold" id="btnSend" onclick="send()">Kirim Momen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lb" id="lb" onclick="if(event.target===this||event.target.id==='lbBody')closeLb()">
+  <button class="round x" onclick="closeLb()" aria-label="Tutup">✕</button>
+  <div id="lbBody"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+// URL SCRIPT GOOGLE ANDA
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwVGei0i4DvbiDyXFzaQp2nCCRKPDr_R5p9vdaXSrGdl1hqNeF_vWf6CR-mPIhabOzu9Q/exec';
+const MAX_VIDEO_MB=25, MAX_REC_SEC=20, MAX_IMG_PX=1600;
+
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)||''}catch(e){return ''}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let toastT;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),3800)}
+
+/* ================= KAMERA ================= */
+let stream=null,facing='environment',mode='photo',rec=null,chunks=[],tick=null,t0=0,pending=null,uploading=false;
+const vid=$('camVideo');
+
+async function getMedia(c){
+  try{return await navigator.mediaDevices.getUserMedia(c)}
+  catch(e){
+    if(e.name==='OverconstrainedError'||e.name==='ConstraintNotSatisfiedError')
+      return await navigator.mediaDevices.getUserMedia({video:true,audio:c.audio});
+    throw e;
+  }
+}
+function stopStream(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}vid.srcObject=null}
+
+async function startStream(){
+  stopStream();
+  const video={facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080},frameRate:{ideal:30}};
+  try{
+    try{stream=await getMedia({video,audio:mode==='video'})}
+    catch(e){
+      if(mode!=='video')throw e;
+      stream=await getMedia({video,audio:false});
+      toast('Mikrofon tidak aktif, video direkam tanpa suara');
+    }
+    vid.srcObject=stream;
+    vid.classList.toggle('mirror',facing==='user');
+    await vid.play();
+  }catch(e){camError(e)}
+}
+function camError(e){
+  closeCam();
+  const m={NotAllowedError:'Izin kamera ditolak. Aktifkan izin kamera di pengaturan browser, atau pakai "kamera bawaan HP".',
+    NotFoundError:'Kamera tidak ditemukan di perangkat ini.',NotReadableError:'Kamera sedang dipakai aplikasi lain.'};
+  toast(m[e.name]||'Kamera tidak dapat dibuka. Coba kamera bawaan atau pilih dari galeri.');
+}
+function openCam(){
+  if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    toast('Kamera langsung butuh HTTPS. Membuka kamera bawaan HP…');$('fileCam').click();return;
+  }
+  $('modeVideo').style.display=window.MediaRecorder?'':'none';
+  $('cam').classList.add('show');
+  startStream();
+}
+function closeCam(){
+  if(rec&&rec.state!=='inactive'){rec.onstop=null;rec.stop()}
+  clearInterval(tick);rec=null;setRecUI(false);stopStream();
+  $('cam').classList.remove('show');
+}
+function setMode(m){
+  if(rec||m===mode)return;
+  mode=m;
+  $('modePhoto').classList.toggle('on',m==='photo');
+  $('modeVideo').classList.toggle('on',m==='video');
+  $('shutter').classList.toggle('vid',m==='video');
+  startStream(); // video butuh mikrofon, jadi stream dimulai ulang
+}
+function flip(){if(rec)return;facing=facing==='user'?'environment':'user';startStream()}
+function setRecUI(on){
+  $('shutter').classList.toggle('rec',on);
+  $('timer').classList.toggle('on',on);
+  $('modes').classList.toggle('lock',on);
+  $('flip').disabled=on;
+}
+function shutter(){
+  if(!stream)return;
+  if(mode==='photo')return snap();
+  if(rec&&rec.state==='recording')rec.stop();else startRec();
+}
+function snap(){
+  const w=vid.videoWidth,h=vid.videoHeight;if(!w)return;
+  const s=Math.min(1,MAX_IMG_PX/Math.max(w,h));
+  const c=document.createElement('canvas');c.width=Math.round(w*s);c.height=Math.round(h*s);
+  c.getContext('2d').drawImage(vid,0,0,c.width,c.height);
+  c.toBlob(b=>{closeCam();if(b)setPending(b,'image/jpeg')},'image/jpeg',.88);
+}
+function startRec(){
+  if(!window.MediaRecorder){toast('Rekam video tidak didukung browser ini. Pakai kamera bawaan HP.');return}
+  const mt=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+  chunks=[];
+  try{rec=new MediaRecorder(stream,mt?{mimeType:mt,videoBitsPerSecond:2500000}:{videoBitsPerSecond:2500000})}
+  catch(e){rec=null;toast('Gagal memulai rekaman');return}
+  rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  rec.onstop=()=>{
+    const type=((rec&&rec.mimeType)||mt||'video/webm').split(';')[0];
+    const b=new Blob(chunks,{type});
+    closeCam();setPending(b,type);
+  };
+  rec.start(1000);t0=Date.now();setRecUI(true);
+  tick=setInterval(()=>{
+    const s=Math.floor((Date.now()-t0)/1000);
+    $('timer').textContent='● '+String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+    if(s>=MAX_REC_SEC&&rec&&rec.state==='recording')rec.stop();
+  },250);
+}
+
+/* ============ PILIH FILE (galeri / kamera bawaan) ============ */
+async function onFile(e){
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  if(f.type.startsWith('image/')){
+    try{ // kecilkan foto agar upload cepat & hemat kuota
+      const bmp=await createImageBitmap(f,{imageOrientation:'from-image'});
+      const s=Math.min(1,MAX_IMG_PX/Math.max(bmp.width,bmp.height));
+      const c=document.createElement('canvas');c.width=Math.round(bmp.width*s);c.height=Math.round(bmp.height*s);
+      c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+      const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.88));
+      if(b)return setPending(b,'image/jpeg');
+    }catch(_){}
+  }
+  setPending(f,f.type||'application/octet-stream');
+}
+$('fileGal').addEventListener('change',onFile);
+$('fileCam').addEventListener('change',onFile);
+
+/* ================= PRATINJAU & UPLOAD ================= */
+function setPending(blob,type){
+  const isVid=type.startsWith('video');
+  if(isVid&&blob.size>MAX_VIDEO_MB*1048576){toast('Video terlalu besar (maks. '+MAX_VIDEO_MB+' MB). Pilih video yang lebih pendek.');return}
+  clearPending();
+  const ext=isVid?(type.includes('mp4')?'mp4':type.includes('quicktime')?'mov':'webm'):'jpg';
+  pending={blob,type,name:'momen_'+Date.now()+'.'+ext,url:URL.createObjectURL(blob)};
+  const m=$('prevMedia');m.innerHTML='';
+  const el=document.createElement(isVid?'video':'img');
+  el.src=pending.url;
+  if(isVid){el.controls=true;el.playsInline=true}
+  m.appendChild(el);
+  $('namaTamu').value=$('namaTamu').value||store.get('nama');
+  $('prev').classList.add('show');
+}
+function clearPending(){
+  if(uploading)return;
+  if(pending)URL.revokeObjectURL(pending.url);
+  pending=null;$('prevMedia').innerHTML='';$('prev').classList.remove('show');
+}
+async function getIP(){
+  try{
+    const r=await Promise.race([fetch('https://api.ipify.org?format=json'),new Promise((_,j)=>setTimeout(j,2500))]);
+    return (await r.json()).ip;
+  }catch(_){return 'Tidak diketahui'}
+}
+const toB64=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(b)});
+
+async function send(){
+  const name=$('namaTamu').value.trim();
+  if(!name){toast('Tulis nama Anda dulu ya');$('namaTamu').focus();return}
+  if(!pending||uploading)return;
+  uploading=true;const btn=$('btnSend');btn.disabled=true;btn.textContent='⏳ Mengunggah…';
+  try{
+    store.set('nama',name);
+    const payload={uploaderName:name,ipAddress:await getIP(),fileBase64:await toB64(pending.blob),mimeType:pending.type,fileName:pending.name};
+    const r=await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload),headers:{'Content-Type':'text/plain;charset=utf-8'}});
+    const j=await r.json();
+    if(!j.success)throw new Error(j.error||'gagal');
+    uploading=false;clearPending();
+    toast('Terima kasih! Momen Anda berhasil dibagikan 💛');
+    loadGallery(true);
+  }catch(err){toast('Gagal mengunggah. Periksa koneksi lalu coba lagi.')}
+  uploading=false;btn.disabled=false;btn.textContent='Kirim Momen';
+}
+
+/* ================= GALERI ================= */
+let lastSig='',rendered=false;
+
+function driveId(it){
+  if(it.fileId)return it.fileId;
+  const u=String(it.fileUrl||it.url||'');
+  const m=u.match(/\/d\/([\w-]{10,})/)||u.match(/[?&]id=([\w-]{10,})/);
+  return m?m[1]:'';
+}
+const isVideo=it=>/^video\//.test(it.mimeType||'')||/\.(mp4|webm|mov|m4v|3gp)$/i.test(it.fileName||'');
+// Daftar alamat gambar; dicoba berurutan sampai ada yang berhasil dimuat
+function thumbs(it,w){
+  const id=driveId(it);
+  if(id)return [`https://lh3.googleusercontent.com/d/${id}=w${w}`,`https://drive.google.com/thumbnail?id=${id}&sz=w${w}`,`https://drive.google.com/uc?export=view&id=${id}`];
+  return it.fileUrl?[it.fileUrl]:[];
+}
+function setImg(img,list){
+  let i=0;img.referrerPolicy='no-referrer';
+  const fail=()=>{const d=document.createElement('div');d.className='broken';d.textContent='Pratinjau belum tersedia — ketuk untuk membuka';img.replaceWith(d)};
+  if(!list.length)return fail();
+  img.onerror=()=>{i++;i<list.length?img.src=list[i]:fail()};
+  img.src=list[0];
+}
+function card(it){
+  const d=document.createElement('div');d.className='item';d.tabIndex=0;
+  const img=document.createElement('img');img.loading='lazy';img.alt='Momen dari '+(it.uploaderName||'tamu');
+  setImg(img,thumbs(it,600));d.appendChild(img);
+  if(isVideo(it)){const p=document.createElement('span');p.className='play';p.textContent='▶ Video';d.appendChild(p)}
+  const i=document.createElement('div');i.className='info';
+  i.append('Diunggah oleh');
+  const s=document.createElement('strong');s.textContent=it.uploaderName||'Tamu';i.appendChild(s);
+  const t=new Date(it.timestamp);
+  if(!isNaN(t)){const sp=document.createElement('span');sp.style.cssText='color:#666;font-size:.7rem';sp.textContent=t.toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});i.appendChild(sp)}
+  d.appendChild(i);
+  d.onclick=()=>openLb(it);
+  d.onkeydown=e=>{if(e.key==='Enter')openLb(it)};
+  return d;
+}
+async function loadGallery(manual){
+  const g=$('gallery');
+  if(!rendered)g.innerHTML='<div class="skel"></div>'.repeat(4);
+  try{
+    const r=await fetch(SCRIPT_URL,{cache:'no-store'});
+    let d=await r.json();
+    if(!Array.isArray(d))d=d.data||d.items||d.files||[];
+    d=d.filter(x=>driveId(x)||x.fileUrl);
+    d.sort((a,b)=>(Date.parse(b.timestamp)||0)-(Date.parse(a.timestamp)||0)); // terbaru di atas
+    const sig=d.map(x=>driveId(x)||x.fileUrl).join();
+    if(rendered&&sig===lastSig){if(manual)toast('Galeri sudah yang terbaru');return}
+    lastSig=sig;rendered=true;g.innerHTML='';
+    $('count').textContent=d.length?d.length+' momen':'';
+    if(!d.length){g.innerHTML='<div class="state">Belum ada momen. Jadilah yang pertama membagikan! 📸</div>';return}
+    d.forEach(it=>g.appendChild(card(it)));
+  }catch(e){
+    if(!rendered)g.innerHTML='<div class="state">Galeri belum bisa dimuat.<br><br><button class="btn btn-line" style="max-width:200px;margin:auto" onclick="loadGallery(true)">Coba lagi</button></div>';
+    else if(manual)toast('Gagal menyegarkan galeri');
+  }
+}
+function openLb(it){
+  const b=$('lbBody');b.innerHTML='';const id=driveId(it);
+  if(isVideo(it)&&id){
+    const f=document.createElement('iframe');
+    f.src='https://drive.google.com/file/d/'+id+'/preview';f.allow='autoplay;fullscreen';f.allowFullscreen=true;b.appendChild(f);
+  }else{const im=document.createElement('img');setImg(im,thumbs(it,1600));b.appendChild(im)}
+  $('lb').classList.add('show');
+}
+function closeLb(){$('lb').classList.remove('show');$('lbBody').innerHTML=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLb();closeCam()}});
+
+/* ================= MULAI ================= */
+$('namaTamu').value=store.get('nama');
+loadGallery();
+setInterval(()=>{if(!document.hidden&&!uploading)loadGallery()},30000); // galeri "live": segar otomatis tiap 30 detik
+</script>
+</body>
+</html>
