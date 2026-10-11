@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin · Galeri Kenangan</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,500;1,700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+[hidden]{display:none!important}
+h2,h3{font-family:'Playfair Display',serif;margin:0 0 12px}
+.lg{min-height:100dvh;display:grid;place-items:center;padding:20px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:18px;margin-bottom:16px}
+.lg .card{width:min(100%,380px);animation:up 1s cubic-bezier(.2,.7,.2,1) backwards}
+@keyframes up{from{opacity:0;transform:translateY(18px)}}
+label{display:grid;gap:6px;font-size:.8rem;color:var(--mut);margin-bottom:12px}
+input:not([type=range]):not([type=file]){width:100%;padding:12px;background:#000;color:var(--tx);border:1px solid #3a3528;border-radius:10px;font-size:16px}
+input[type=range]{width:100%;accent-color:var(--gold)}
+input[type=file]{color:var(--mut);font-size:.8rem}
+output{float:right;color:var(--gold)}
+.err{color:#e57373;margin:0 0 10px;min-height:1.2em;font-size:.85rem}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--ln);position:sticky;top:0;z-index:5;background:#0a0a0af0;backdrop-filter:blur(8px)}
+.top b{font:italic 600 1.15rem 'Playfair Display',serif;color:var(--gold)}
+.top a,.top button{color:var(--tx);background:none;border:1px solid #3a3528;border-radius:20px;padding:7px 14px;font-size:.8rem;text-decoration:none;margin-left:6px}
+.tabs{display:flex;gap:6px;max-width:1000px;margin:14px auto 0;padding:0 18px}
+.tabs button{background:none;border:1px solid var(--ln);color:var(--mut);border-radius:20px;padding:8px 18px;transition:.3s}
+.tabs button.on{border-color:var(--gold);color:var(--gold)}
+main{max-width:1000px;margin:auto;padding:16px 18px 40px;animation:up .8s backwards}
+.tw{overflow-x:auto;padding:6px 10px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:left;color:var(--gold);font-weight:600;padding:10px;border-bottom:1px solid var(--ln);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--ln);vertical-align:middle}
+td:nth-child(3){min-width:150px;overflow-wrap:anywhere}
+td img{width:64px;height:64px;object-fit:cover;border-radius:10px;cursor:pointer;display:block;background:#222}
+td .broken{width:64px;padding:8px 2px;font-size:.6rem}
+tr{transition:opacity .4s}
+.del{background:none;border:1px solid #7a2e2e;color:#e57373;border-radius:8px;padding:9px 12px;transition:.3s}
+.del:hover{background:#7a2e2e;color:#fff}
+.mut{color:var(--mut);text-align:center}
+.two{display:grid;gap:16px}
+@media(min-width:860px){.two{grid-template-columns:1fr 1fr;align-items:start}.sticky{position:sticky;top:70px}}
+.pvb{background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:14px;overflow:hidden;transition:background .5s}
+.pvb footer{padding:26px 14px 22px}
+.pvs{color:var(--mut);display:block;margin-top:8px;text-align:center;font-size:.78rem}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn.on{background:var(--gold);color:#000}
+.pal{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.pal button{width:38px;height:38px;border-radius:50%;border:2px solid transparent;outline:1px solid #3a3528;outline-offset:2px;transition:.3s}
+.pal button.on{border-color:#fff;transform:scale(1.14)}
+.fine{font-size:.75rem;color:var(--mut);margin:0 0 12px}
+</style>
+</head>
+<body>
+
+<div class="lg" id="login">
+  <form class="card" id="lf">
+    <h2>Masuk Admin</h2>
+    <label>Username<input id="u" autocomplete="username" required></label>
+    <label>Password<input id="p" type="password" autocomplete="current-password" required></label>
+    <p class="err" id="le" role="alert"></p>
+    <div class="btns"><button class="btn p" id="lbtn">Masuk</button></div>
+    <p class="mut"><a href="index.html" style="color:inherit">← Kembali ke galeri</a></p>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <nav class="top"><b>Panel Admin</b><div><a href="index.html">Lihat galeri</a><button id="out">Keluar</button></div></nav>
+  <div class="tabs"><button class="on" data-t="f">Daftar Foto <span id="n"></span></button><button data-t="s">Pengaturan Tampilan</button></div>
+  <main>
+    <!-- TAB 1 (kiri): daftar foto -->
+    <section id="tf">
+      <div class="card tw">
+        <table>
+          <thead><tr><th>Tanggal</th><th>Nama Tamu</th><th>Pesan</th><th>Foto</th><th>Aksi</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <p class="mut" id="nof" hidden>Belum ada foto yang diunggah.</p>
+      </div>
+    </section>
+
+    <!-- TAB 2 (kanan): pengaturan tampilan -->
+    <section id="ts" class="two" hidden>
+      <div class="sticky">
+        <div class="pvb" id="pvb">
+          <div class="hero"><div class="hbg"></div><div class="shade"></div>
+            <div class="in"><p class="eb" data-k="eyebrow"></p><h1 data-k="title"></h1><p class="sub" data-k="sub"></p></div></div>
+          <footer><div class="orn">✦</div><p class="fl" data-k="loc"></p><p class="fd" data-k="date"></p></footer>
+        </div>
+        <small class="pvs">Pratinjau header &amp; footer (berubah langsung)</small>
+      </div>
+      <div>
+        <div class="card"><h3>Teks Acara</h3>
+          <label>Jenis acara<input data-f="eyebrow" maxlength="60"></label>
+          <label>Ukuran teks<output></output><input type="range" data-f="s_eyebrow" min="60" max="160"></label>
+          <label>Nama acara / judul<input data-f="title" maxlength="80"></label>
+          <label>Ukuran teks<output></output><input type="range" data-f="s_title" min="60" max="160"></label>
+          <label>Sub-judul<input data-f="sub" maxlength="120"></label>
+          <label>Ukuran teks<output></output><input type="range" data-f="s_sub" min="60" max="160"></label>
+          <label>Lokasi acara (footer)<input data-f="loc" maxlength="120" placeholder="Gedung Serbaguna, Kediri"></label>
+          <label>Ukuran teks<output></output><input type="range" data-f="s_loc" min="60" max="160"></label>
+          <label>Tanggal acara (footer)<input data-f="date" maxlength="60" placeholder="Sabtu, 20 Desember 2026"></label>
+          <label>Ukuran teks<output></output><input type="range" data-f="s_date" min="60" max="160"></label>
+        </div>
+        <div class="card"><h3>Background Header</h3>
+          <label>Pilih gambar<input type="file" id="bgf" accept="image/*"></label>
+          <label>Redupkan gambar (overlay)<output></output><input type="range" data-f="bgDark" min="0" max="90"></label>
+          <label>Zoom / ukuran gambar<output></output><input type="range" data-f="bgZoom" min="100" max="250"></label>
+          <label>Posisi crop horizontal<output></output><input type="range" data-f="bgX" min="0" max="100"></label>
+          <label>Posisi crop vertikal<output></output><input type="range" data-f="bgY" min="0" max="100"></label>
+          <label>Tinggi header<output></output><input type="range" data-f="hHeight" min="220" max="620" step="10"></label>
+          <div class="btns"><button class="btn" id="bgx" type="button">Hapus background</button></div>
+        </div>
+        <div class="card"><h3>Tema Warna</h3>
+          <label>Palet warna teks (10 pilihan)</label><div class="pal" id="pal"></div>
+          <label>Warna background halaman</label>
+          <div class="btns"><button class="btn" data-m="dark" type="button">⬛ Hitam</button><button class="btn" data-m="light" type="button">⬜ Putih</button></div>
+        </div>
+        <div class="btns" style="margin-bottom:16px"><button class="btn p" id="save">Simpan pengaturan</button></div>
+        <div class="card"><h3>Akun Admin</h3>
+          <p class="fine">Ganti username dan password admin (password minimal 8 karakter).</p>
+          <label>Username baru<input id="nu" autocomplete="off"></label>
+          <label>Password baru<input id="np" type="password" autocomplete="new-password"></label>
+          <label>Ulangi password baru<input id="np2" type="password" autocomplete="new-password"></label>
+          <div class="btns"><button class="btn p" id="cbtn" type="button">Ganti username &amp; password</button></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="lb" id="lb">
+  <div class="stg" id="stg"><img class="sl" id="lp" alt=""><img class="sl" id="li" alt="Foto"><img class="sl" id="ln" alt=""></div>
+  <button class="x" aria-label="Tutup">✕</button>
+  <div class="lc" id="lc"><b></b><span></span></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="shared.js"></script>
+<script>
+let H='',cfg={},bg=null,clr=false,ROWS=[];
+const ss=(k,v)=>{try{v===undefined?sessionStorage.removeItem(k):sessionStorage.setItem(k,v)}catch(e){}};
+const gs=k=>{try{return sessionStorage.getItem(k)}catch(e){return null}};
+const pvb=$('pvb'),ins=document.querySelectorAll('[data-f]');
+
+/* ===== Login (verifikasi hash di server) ===== */
+async function enter(h){
+  const r=await post({action:'list',h});
+  if(!r.success)return false;
+  H=h;ss('h',h);$('login').hidden=true;$('app').hidden=false;
+  cfg=r.config||{};fill();rows(r.photos||[]);return true;
+}
+$('lf').onsubmit=async e=>{
+  e.preventDefault();$('le').textContent='';const b=$('lbtn');b.disabled=true;
+  try{
+    const h=await sha('gp|'+$('u').value.trim().toLowerCase()+'|'+$('p').value);
+    if(!await enter(h)){$('le').textContent='Username atau password salah.';await new Promise(r=>setTimeout(r,1500))}
+  }catch(x){$('le').textContent='Tidak dapat terhubung. Buka halaman ini lewat HTTPS.'}
+  b.disabled=false;
+};
+const h0=gs('h');if(h0)enter(h0).then(ok=>{if(!ok)ss('h')}).catch(()=>{});
+$('out').onclick=()=>{ss('h');location.reload()};
+document.querySelectorAll('.tabs button').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===t));
+  $('tf').hidden=t.dataset.t!=='f';$('ts').hidden=t.dataset.t!=='s';
+});
+
+/* ===== Daftar foto ===== */
+const cnt=()=>{$('n').textContent=ROWS.length?'('+ROWS.length+')':'';$('nof').hidden=ROWS.length>0};
+function rows(ps){
+  ROWS=ps.filter(p=>p.fileId).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  const b=$('rows');b.innerHTML='';cnt();
+  ROWS.forEach(p=>{
+    const tr=document.createElement('tr');
+    const td=(...n)=>{const c=document.createElement('td');c.append(...n);tr.appendChild(c)};
+    const t=new Date(p.timestamp);
+    td(isNaN(t)?'-':t.toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'}));
+    td(p.uploaderName||'Tamu');td(p.pesan||'-');
+    const im=document.createElement('img');im.alt='Foto dari '+(p.uploaderName||'tamu');im.loading='lazy';
+    im.onclick=()=>lbOpen(ROWS,ROWS.findIndex(x=>x.fileId===p.fileId));setImg(im,thumbs(p.fileId,200));
+    td(im);
+    const x=document.createElement('button');x.className='del';x.textContent='Hapus';x.onclick=()=>del(p,tr);td(x);
+    b.appendChild(tr);
+  });
+}
+async function del(p,tr){
+  if(!confirm('Hapus foto dari '+(p.uploaderName||'tamu')+'?\nFoto dan data pengunggah akan dihapus permanen dari Google Drive.'))return;
+  tr.style.opacity=.4;
+  try{
+    const r=await post({action:'delete',h:H,fileId:p.fileId});
+    if(!r.success)throw 0;
+    ROWS=ROWS.filter(x=>x.fileId!==p.fileId);tr.remove();cnt();toast('Foto dan data pengunggah dihapus');
+  }catch(e){tr.style.opacity=1;toast('Gagal menghapus. Coba lagi.')}
+}
+
+/* ===== Pengaturan tampilan ===== */
+const unit=k=>k==='hHeight'?'px':'%';
+function show(i){const o=i.closest('label').querySelector('output');if(o)o.textContent=i.value+unit(i.dataset.f)}
+$('pal').append(...TN.map((n,i)=>{const b=document.createElement('button');b.type='button';b.title=n;b.setAttribute('aria-label',n);b.style.background=T[i][0];b.onclick=()=>{cfg.theme=i;paint()};return b}));
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{cfg.mode=b.dataset.m;paint()});
+function paint(){
+  applyCfg(cfg,pvb);
+  [...$('pal').children].forEach((b,i)=>b.classList.toggle('on',i===(cfg.theme||0)));
+  document.querySelectorAll('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===(cfg.mode||'dark')));
+}
+function fill(){ins.forEach(i=>{i.value=cfg[i.dataset.f]??'';show(i)});paint()}
+ins.forEach(i=>i.oninput=()=>{cfg[i.dataset.f]=i.type==='range'?+i.value:i.value;show(i);paint()});
+
+$('bgf').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const b=await createImageBitmap(f,{imageOrientation:'from-image'}),s=Math.min(1,1800/b.width),c=document.createElement('canvas');
+    c.width=Math.round(b.width*s);c.height=Math.round(b.height*s);c.getContext('2d').drawImage(b,0,0,c.width,c.height);
+    bg=c.toDataURL('image/jpeg',.82).split(',')[1];clr=false;cfg.bgId='local';
+    const hb=pvb.querySelector('.hbg');hb.style.backgroundImage='url(data:image/jpeg;base64,'+bg+')';hb.classList.add('on');paint();
+  }catch(x){toast('Gambar tidak dapat dibaca. Coba format JPG atau PNG.')}
+};
+$('bgx').onclick=()=>{bg=null;clr=true;cfg.bgId='';$('bgf').value='';paint()};
+$('save').onclick=async()=>{
+  const b=$('save');b.disabled=true;b.textContent='Menyimpan…';
+  try{
+    const c={...cfg};delete c.bgId;
+    const r=await post({action:'config',h:H,config:c,bgBase64:bg,clearBg:clr});
+    if(!r.success)throw 0;
+    cfg=r.config;bg=null;clr=false;$('bgf').value='';fill();toast('Pengaturan tersimpan. Halaman tamu akan ikut berubah.');
+  }catch(e){toast('Gagal menyimpan. Coba lagi.')}
+  b.disabled=false;b.textContent='Simpan pengaturan';
+};
+
+/* ===== Ganti username & password ===== */
+$('cbtn').onclick=async()=>{
+  const u=$('nu').value.trim().toLowerCase(),p=$('np').value;
+  if(u.length<3)return toast('Username minimal 3 karakter');
+  if(p.length<8)return toast('Password minimal 8 karakter');
+  if(p!==$('np2').value)return toast('Ulangi password belum sama');
+  const b=$('cbtn');b.disabled=true;
+  try{
+    const nh=await sha('gp|'+u+'|'+p),r=await post({action:'creds',h:H,nh});
+    if(!r.success)throw 0;
+    H=nh;ss('h',nh);['nu','np','np2'].forEach(i=>$(i).value='');
+    toast('Username & password diganti. Pakai yang baru saat login berikutnya.');
+  }catch(e){toast('Gagal mengganti. Coba lagi.')}
+  b.disabled=false;
+};
+</script>
+</body>
+</html>
