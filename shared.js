@@ -45,16 +45,24 @@ function applyCfg(c,root=document){
   if(root===document&&c.title)document.title=c.title+' · Galeri Kenangan';
 }
 
-/* ===== Lightbox: swipe kiri-kanan, foto tetangga terlihat di belakang ===== */
-const LB={l:[],i:0,S:[$('lp'),$('li'),$('ln')]};
+/* ===== Lightbox: foto mengambang di tengah, tetangga di belakang kiri-kanan, geser manual + slideshow otomatis ===== */
+// LB.loop: putar terus dari foto terakhir ke foto pertama. LB.auto: geser otomatis ke kiri tiap LB.hold ms (diatur halaman tamu; admin tetap manual).
+const LB={l:[],i:0,S:[],loop:false,auto:false,hold:4000};
+const stg=$('stg');
+// 3 slide: kiri = foto sebelumnya, tengah = foto yang dibuka, kanan = foto berikutnya. Tiap slide = nama (atas) + foto + pesan (bawah).
+LB.S=[0,1,2].map(()=>{const e=document.createElement('div'),im=document.createElement('img');e.className='sl';im.alt='';im.draggable=false;e.append(document.createElement('b'),im,document.createElement('span'));stg.appendChild(e);return e});
 const step=()=>Math.min(($('lb').clientWidth||innerWidth)*.62,380);
-function put(img,p){
-  if(!p){img.style.visibility='hidden';img.removeAttribute('src');img.dataset.id='';return}
-  img.style.visibility='';
-  if(img.dataset.id!==p.fileId){img.dataset.id=p.fileId;img.removeAttribute('src');setImg(img,thumbs(p.fileId,1600),()=>{})}
+const DUR=1040; // = --dur di shared.css (1s) + sedikit jeda, supaya gerak selesai dulu baru slot didaur ulang
+const isOpen=()=>$('lb').classList.contains('on');
+// foto pada posisi i+d; saat loop, melingkar (setelah foto terakhir kembali ke foto pertama)
+function nbr(d){const N=LB.l.length,j=LB.i+d;return LB.loop&&N>1?LB.l[((j%N)+N)%N]:LB.l[j]}
+function put(e,p){
+  const[b,im,s]=e.children;
+  if(!p){e.style.visibility='hidden';return}
+  e.style.visibility='';b.textContent=p.uploaderName||'Tamu';s.textContent=p.pesan||'';
+  if(im.dataset.id!==p.fileId){im.dataset.id=p.fileId;im.removeAttribute('src');setImg(im,thumbs(p.fileId,1600),()=>{})}
 }
-function cap(){const p=LB.l[LB.i]||{},c=$('lc').children;c[0].textContent=p.uploaderName||'Tamu';c[1].textContent=p.pesan||''}
-function fillS(){const[a,b,c]=LB.S;put(a,LB.l[LB.i-1]);put(b,LB.l[LB.i]);put(c,LB.l[LB.i+1]);cap()}
+function fillS(){put(LB.S[0],nbr(-1));put(LB.S[1],nbr(0));put(LB.S[2],nbr(1))}
 // f: 0 = di tengah, 1 = posisi tetangga, 2 = sudah keluar layar. Di antara 1 dan 2 foto memudar halus.
 function lay(dx,drag){
   const s=step();
@@ -62,42 +70,49 @@ function lay(dx,drag){
     e.style.transition=drag?'none':'';e.style.setProperty('--x',x+'px');e.style.setProperty('--s',1-.2*n);
     e.style.opacity=f<=1?1-.5*f:.5*(2-f);e.style.zIndex=3-Math.round(n*2)});
 }
-function lbOpen(list,i){if(i<0||!list[i])return;LB.l=list;LB.i=i;fillS();lay(0,false);$('lb').classList.add('on')}
-const lbClose=()=>$('lb').classList.remove('on');
-let lock=false;
-const DUR=870; // sedikit lebih lama dari transisi CSS (.85s) agar gerak selesai sebelum slot didaur ulang
+// muat lebih awal foto yang sebentar lagi jadi tetangga baru, agar saat slideshow berjalan tidak "muncul tiba-tiba"
+function pre(){[-2,2].forEach(d=>{const p=nbr(d);if(p)new Image().src=thumbs(p.fileId,1600)[0]})}
+let ap=0,lock=false;
+function arm(){ // jadwalkan geser otomatis berikutnya; foto diam selama LB.hold
+  clearTimeout(ap);
+  if(!LB.auto||!isOpen()||document.hidden||LB.l.length<2)return;
+  ap=setTimeout(()=>{if(sx!==null||lock)return arm();go(1)},LB.hold);
+}
+function lbOpen(list,i){if(i<0||!list[i])return;LB.l=list;LB.i=i;fillS();lay(0,false);$('lb').classList.add('on');arm();pre()}
+const lbClose=()=>{$('lb').classList.remove('on');clearTimeout(ap)};
 function go(d){
   if(lock)return;
-  const n=LB.i+d;if(n<0||n>=LB.l.length)return lay(0,false);
-  lock=true;lay(-d*step(),false);
+  const N=LB.l.length,n=LB.loop?((LB.i+d)%N+N)%N:LB.i+d;
+  if(N<2||n<0||n>=N||n===LB.i){lay(0,false);return arm()}
+  lock=true;clearTimeout(ap);lay(-d*step(),false); // semua slide (foto + nama + pesan) bergeser bersama dengan transisi yang sama
   setTimeout(()=>{
     LB.i=n;d>0?LB.S.push(LB.S.shift()):LB.S.unshift(LB.S.pop());
-    const[a,b,c]=LB.S,nb=d>0?c:a; // nb = slot yang baru didaur ulang jadi tetangga baru
-    put(a,LB.l[n-1]);put(b,LB.l[n]);put(c,LB.l[n+1]);cap();
-    lay(0,true);nb.style.opacity=0;void nb.offsetWidth; // tetangga baru mulai transparan lalu memudar masuk
-    requestAnimationFrame(()=>{lay(0,false);lock=false});
+    const nb=d>0?LB.S[2]:LB.S[0]; // slot yang baru didaur ulang jadi tetangga baru
+    fillS();lay(0,true);nb.style.opacity=0;void nb.offsetWidth; // tetangga baru mulai transparan lalu memudar masuk
+    requestAnimationFrame(()=>{lay(0,false);lock=false;arm();pre()});
   },DUR);
 }
 let sx=null,dx=0,t0=0;
-const stg=$('stg');
-stg.onpointerdown=e=>{if(lock)return;sx=e.clientX;dx=0;t0=performance.now();try{stg.setPointerCapture(e.pointerId)}catch(x){}};
+stg.onpointerdown=e=>{if(lock)return;sx=e.clientX;dx=0;t0=performance.now();clearTimeout(ap);try{stg.setPointerCapture(e.pointerId)}catch(x){}};
 stg.onpointermove=e=>{
   if(sx===null)return;dx=e.clientX-sx;
-  const edge=(dx>0&&LB.i===0)||(dx<0&&LB.i===LB.l.length-1);lay(edge?dx*.3:dx,true);
+  const edge=!LB.loop&&((dx>0&&LB.i===0)||(dx<0&&LB.i===LB.l.length-1));lay(edge?dx*.3:dx,true);
 };
 function up(e){
   if(sx===null)return;const d=dx,v=Math.abs(d)/Math.max(1,performance.now()-t0);sx=null;
   if(Math.abs(d)>60||(Math.abs(d)>20&&v>.5))go(d<0?1:-1); // geser cukup jauh, atau lemparan cepat
   else{
     lay(0,false);
-    if(Math.abs(d)<6){const el=document.elementFromPoint(e.clientX,e.clientY);
-      if(el===LB.S[0])go(-1);else if(el===LB.S[2])go(1);else if(el!==LB.S[1])lbClose()}
+    if(Math.abs(d)<6){const el=document.elementFromPoint(e.clientX,e.clientY),sl=el&&el.closest?el.closest('.sl'):null;
+      if(sl===LB.S[0])go(-1);else if(sl===LB.S[2])go(1);else if(sl!==LB.S[1])lbClose()}
+    arm();
   }
 }
-stg.onpointerup=up;stg.onpointercancel=()=>{sx=null;lay(0,false)};
+stg.onpointerup=up;stg.onpointercancel=()=>{sx=null;lay(0,false);arm()};
 $('lb').querySelector('.x').onclick=lbClose;
-addEventListener('resize',()=>{if($('lb').classList.contains('on'))lay(0,true)});
+addEventListener('resize',()=>{if(isOpen())lay(0,true)});
+document.addEventListener('visibilitychange',()=>document.hidden?clearTimeout(ap):arm());
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){lbClose();window.onEsc&&onEsc()}
-  if($('lb').classList.contains('on')){if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)}
+  if(isOpen()){if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)}
 });
