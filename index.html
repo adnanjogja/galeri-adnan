@@ -21,19 +21,50 @@ if(location.hash==='#preview'&&parent!==window)document.documentElement.classNam
 .gh h2{font:italic 600 1.7rem 'Playfair Display',serif;margin:0}
 .gh small{display:block;color:var(--mut);font-size:.8rem;margin-top:4px}
 .gh i{display:block;width:90px;height:1px;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-/* Layout HP: selalu 2 kolom, tidak bergantung lebar jendela (di desktop tampil di dalam bingkai HP) */
-.gal{columns:2;column-gap:10px;margin:0;padding:18px 12px 40px}
-.ph{break-inside:avoid;margin:0 0 10px;position:relative;overflow:hidden;border-radius:18px;background:var(--card);cursor:pointer;animation:pop 1.9s cubic-bezier(.16,.8,.24,1) backwards;animation-delay:calc(var(--d,0)*140ms);transition:transform .7s cubic-bezier(.2,.8,.2,1),box-shadow .7s,opacity .5s;-webkit-tap-highlight-color:transparent}
+/* ===== Galeri: 3 kolom seamless, tanpa celah, tiap kolom hanyut berlawanan arah =====
+   JS (build) mengisi .gal dengan 3 .col; tiap .col berisi .trk yang memuat salinan daftar foto berulang.
+   .trk digeser tepat sejauh satu salinan (--p) lalu mengulang, jadi putarannya tak terlihat putus. */
+.gal{position:relative;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);margin:20px 0 0;padding:0}
+.gal::before,.gal::after{content:'';position:absolute;left:0;right:0;height:46px;z-index:9;pointer-events:none}
+.gal::before{top:0;background:linear-gradient(var(--bg),transparent)}
+.gal::after{bottom:0;background:linear-gradient(transparent,var(--bg))}
+.col{position:relative;min-width:0}
+.trk{will-change:transform;animation-timing-function:linear;animation-iteration-count:infinite}
+.trk.up{animation-name:up}.trk.dn{animation-name:dn}
+@keyframes up{to{transform:translateY(calc(var(--p)*-1))}}
+@keyframes dn{from{transform:translateY(calc(var(--p)*-1))}to{transform:translateY(0)}}
+.ph{display:block;margin:0;position:relative;overflow:hidden;background:var(--card);cursor:pointer;animation:pop 1.9s cubic-bezier(.16,.8,.24,1) backwards;animation-delay:calc(var(--d,0)*140ms);transition:transform .7s cubic-bezier(.2,.8,.2,1),box-shadow .7s,filter .7s,opacity .7s;-webkit-tap-highlight-color:transparent}
 /* foto muncul melayang naik, membesar pelan, dan menajam */
 @keyframes pop{from{opacity:0;transform:translateY(44px) scale(.9);filter:blur(7px)}}
-.ph:hover,.ph:focus-visible,.ph:active{transform:translateY(-8px) rotate(-1.6deg) scale(1.02);box-shadow:0 20px 40px #0008}
-.ph.out{opacity:0;transform:scale(.9)}
-.ph img{width:100%;display:block;min-height:110px;transition:transform .9s cubic-bezier(.2,.8,.2,1)}
-.ph:hover img{transform:scale(1.04)}
-.cp{position:absolute;left:0;right:0;bottom:0;padding:26px 10px 8px;text-align:left;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.66))}
-.cp span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;font-size:.66rem;font-weight:300;line-height:1.35;letter-spacing:.01em;color:#fff}
-.cp b{display:block;margin-top:1px;color:var(--ac);font-size:.6rem;font-weight:400;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cp span:empty{display:none}
+.ph img{display:block;width:100%;height:100%;object-fit:cover}
+.ph .broken{height:100%;display:grid;place-items:center}
+.col:nth-child(1) .ph{transform-origin:15% 50%}
+.col:nth-child(3) .ph{transform-origin:85% 50%}
+/* Hover (hanya perangkat dengan kursor): foto yang disorot membesar & mengambang di atas tetangga, kolomnya berhenti sejenak,
+   foto lain jadi hitam-putih dan meredup. Di layar sentuh efek ini tidak dipakai (hover menempel setelah ketukan). */
+@media(hover:hover) and (pointer:fine){
+  .col:hover{z-index:5}
+  .col:hover .trk{animation-play-state:paused}
+  .ph:is(:hover,:focus-visible){z-index:3;transform:scale(1.22);box-shadow:0 18px 44px #000b,0 0 0 1px color-mix(in srgb,var(--ac) 55%,transparent)}
+  .gal:has(.ph:is(:hover,:focus-visible)) .ph:not(:is(:hover,:focus-visible)){filter:grayscale(1) brightness(.72);opacity:.6}
+}
+/* Nama + pesan: berjalan horizontal sangat pelan di bawah foto (marquee tanpa putus).
+   Tiap .mi (satu salinan) minimal selebar kolom (100cqw), jadi dua salinan selalu cukup menutup ruang. */
+.cp{position:absolute;left:0;right:0;bottom:0;padding:20px 0 6px;color:#fff;pointer-events:none;background:linear-gradient(transparent,rgba(0,0,0,.7))}
+.mq{container-type:inline-size;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+.mt{display:flex;width:max-content;animation:mq 30s linear infinite;will-change:transform}
+@keyframes mq{to{transform:translateX(-50%)}}
+.mi{flex:none;display:flex;align-items:baseline;gap:.75em;min-width:100cqw;padding-right:1.5em;white-space:nowrap;font-size:.62rem;line-height:1.5}
+.mi b{color:var(--ac);font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.mi i{font-style:normal;font-weight:300;letter-spacing:.02em;color:#fff}
+.mi u{text-decoration:none;color:var(--ac);opacity:.65}
+/* Pengguna yang meminta gerak dikurangi: tanpa drift & marquee, galeri tampil statis dan utuh */
+@media(prefers-reduced-motion:reduce){
+  .gal{height:auto!important}
+  .trk,.mt{animation:none!important}
+  .cpy+.cpy,.mi+.mi{display:none}
+  .mi{min-width:0}
+}
 .msg{text-align:center;color:var(--mut);padding:30px 20px;font-style:italic}
 .adm{display:inline-block;margin-top:14px;padding:6px 10px;color:var(--mut);font:italic .85rem 'Playfair Display',serif;text-decoration:none;opacity:.7;transition:.4s}
 .adm:hover{color:var(--gold);opacity:1}
@@ -157,7 +188,7 @@ body::before{content:'';position:fixed;inset:-15%;z-index:-1;pointer-events:none
 
 <script src="shared.js"></script>
 <script>
-const g=$('gal'),cards=new Map(),v=$('v'),V=$('view'),W=$('win'),M=$('mask');
+const g=$('gal'),v=$('v'),V=$('view'),W=$('win'),M=$('mask');
 let first=true,order=[],st=null,face='environment',land=false,grid=false,tm=0,shot=null,busy=false,pu='';
 const PV=location.hash==='#preview'&&parent!==window; // dipakai sebagai pratinjau di halaman admin
 let PVBG='';
@@ -173,24 +204,64 @@ else{
 }
 
 /* ===== Galeri (auto-update tiap 8 detik) ===== */
-function card(p,i){
-  const f=document.createElement('figure');f.className='ph';f.style.setProperty('--d',i);f.tabIndex=0;
-  const im=document.createElement('img');im.loading='lazy';im.alt='Kenangan dari '+(p.uploaderName||'tamu');setImg(im,thumbs(p.fileId,700));
-  const c=document.createElement('div');c.className='cp';
-  const b=document.createElement('b');b.textContent=p.uploaderName||'Tamu';
-  const s=document.createElement('span');s.textContent=p.pesan||'';
-  c.append(s,b);f.append(im,c);
+const RT=[1.34,1,1.5,1.2,.8,1.25,1.4]; // rasio tinggi/lebar foto di grid (dipilih dari ID foto, jadi tetap sama tiap dibuka)
+const SPD=[15,11,13],MQS=12;           // kecepatan drift kolom 1-3 (px/detik) dan marquee teks (px/detik): sengaja super pelan
+let sig='',bw=0,CW=130;
+const hs=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
+function mi(nm,ms,hid){
+  const s=document.createElement('span');s.className='mi';if(hid)s.setAttribute('aria-hidden','true');
+  const b=document.createElement('b');b.textContent=nm;s.append(b);
+  if(ms){const i=document.createElement('i');i.textContent=ms;s.append(i)}
+  const u=document.createElement('u');u.textContent='✦';s.append(u);return s;
+}
+function marq(p){ // bukan "cap": nama itu sudah dipakai shared.js untuk caption lightbox
+  const nm=p.uploaderName||'Tamu',ms=p.pesan||'',c=document.createElement('div'),q=document.createElement('div'),t=document.createElement('div');
+  c.className='cp';q.className='mq';t.className='mt';
+  const d=Math.max(CW,nm.length*7.5+ms.length*5.6+40)/MQS; // lama satu putaran: jarak satu salinan teks / kecepatan
+  t.style.animationDuration=d+'s';t.style.animationDelay=-(hs(p.fileId)%100)/100*d+'s'; // fase acak agar tiap foto tidak bergerak serempak
+  t.append(mi(nm,ms),mi(nm,ms,true));q.append(t);c.append(q);return c;
+}
+function tile(p,h,main,d){
+  const f=document.createElement('figure');f.className='ph';f.style.height=h+'px';f.style.setProperty('--d',d);
+  const im=document.createElement('img');im.loading='lazy';im.alt=main?'Kenangan dari '+(p.uploaderName||'tamu'):'';setImg(im,thumbs(p.fileId,400));
+  f.append(im,marq(p));
   const o=()=>lbOpen(order,order.findIndex(x=>x.fileId===p.fileId));
-  f.onclick=o;f.onkeydown=e=>{if(e.key==='Enter')o()};
+  f.onclick=o;
+  if(main){f.tabIndex=0;f.onkeydown=e=>{if(e.key==='Enter')o()}} // salinan pengulang tidak ikut tab / pembaca layar
   return f;
 }
+// Susun ulang 3 kolom. Dipanggil hanya bila daftar foto atau lebar layar berubah; posisi drift tiap kolom dipertahankan.
+function build(){
+  const ps=order,n=ps.length,cw=g.clientWidth/3;
+  const ph=[...g.querySelectorAll('.trk')].map(t=>{const a=t.getAnimations()[0];return a?(a.effect.getComputedTiming().progress||0):0});
+  g.textContent='';g.style.height='';bw=g.clientWidth;CW=cw;
+  if(!n||!cw)return;
+  const asc=[...ps].reverse(); // urutan unggah: foto ke-k selalu masuk kolom k%3, jadi foto baru tidak mengacak kolom lain
+  const cols=[0,1,2].map(j=>{
+    let l=asc.filter((_,k)=>k%3===j).reverse(); // di dalam kolom, terbaru di atas
+    if(!l.length)l=[ps[j%n]];                     // kurang dari 3 foto: kolom kosong diisi ulang agar grid tetap penuh
+    const hh=l.map(p=>Math.round(cw*RT[(hs(p.fileId)+j)%RT.length])); // tinggi bulat (px): tanpa garis halus antar foto
+    return{l,hh,p:hh.reduce((a,b)=>a+b,0)};
+  });
+  const H=Math.max(460,Math.min(880,Math.max(...cols.map(c=>c.p)))); // tinggi jendela galeri menyesuaikan jumlah foto
+  g.style.height=H+'px';
+  cols.forEach((c,j)=>{
+    const col=document.createElement('div'),trk=document.createElement('div'),k=Math.ceil(H/c.p)+1,dur=c.p/SPD[j];
+    col.className='col';trk.className='trk '+(j===1?'dn':'up'); // kolom 1 & 3 naik, kolom 2 turun
+    trk.style.setProperty('--p',c.p+'px');trk.style.animationDuration=dur+'s';trk.style.animationDelay=-(ph[j]||0)*dur+'s';
+    for(let r=0;r<k;r++){
+      const cp=document.createElement('div');cp.className='cpy';
+      c.l.forEach((p,i)=>cp.append(tile(p,c.hh[i],r===0,Math.min(i,8)+j)));
+      trk.append(cp);
+    }
+    col.append(trk);g.append(col);
+  });
+}
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(g.clientWidth!==bw)build()},200)});
 function sync(ps){
   ps=ps.filter(p=>p.fileId).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));order=ps;
-  const ids=new Set(ps.map(p=>p.fileId));
-  cards.forEach((el,id)=>{if(!ids.has(id)){el.classList.add('out');setTimeout(()=>el.remove(),500);cards.delete(id)}});
-  const fresh=ps.filter(p=>!cards.has(p.fileId));
-  if(first)fresh.forEach((p,i)=>{const el=card(p,Math.min(i,12));cards.set(p.fileId,el);g.append(el)});
-  else fresh.reverse().forEach(p=>{const el=card(p,0);cards.set(p.fileId,el);g.prepend(el)});
+  const s=ps.map(p=>p.fileId).join(',');
+  if(s!==sig){sig=s;build()}
   $('cnt').textContent=ps.length?ps.length+' kenangan terkumpul':'';
   $('emp').hidden=ps.length>0;first=false;
 }
