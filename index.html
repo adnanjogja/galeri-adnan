@@ -21,25 +21,28 @@ if(location.hash==='#preview'&&parent!==window)document.documentElement.classNam
 .gh h2{font:italic 600 1.7rem 'Playfair Display',serif;margin:0}
 .gh small{display:block;color:var(--mut);font-size:.8rem;margin-top:4px}
 .gh i{display:block;width:90px;height:1px;margin:14px auto 0;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-/* ===== Galeri: 3 kolom seamless, tanpa celah, tiap kolom hanyut berlawanan arah =====
-   JS (build) mengisi .gal dengan 3 .col; tiap .col berisi .trk yang memuat salinan daftar foto berulang.
-   .trk digeser tepat sejauh satu salinan (--p) lalu mengulang, jadi putarannya tak terlihat putus. */
-.gal{position:relative;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);margin:20px 0 0;padding:0}
-.gal::before,.gal::after{content:'';position:absolute;left:0;right:0;height:46px;z-index:9;pointer-events:none}
-.gal::before{top:0;background:linear-gradient(var(--bg),transparent)}
-.gal::after{bottom:0;background:linear-gradient(transparent,var(--bg))}
+/* ===== Galeri: 2 kolom ala Pinterest (ada gap, kartu bersudut melengkung), tiap kolom hanyut berlawanan arah =====
+   JS (build) mengisi .gal dengan 2 .col; tiap .col berisi .trk yang memuat salinan daftar foto berulang.
+   .trk digeser tepat sejauh satu salinan (--p) lalu mengulang, jadi putarannya tak terlihat putus.
+   --gap = jarak antar kolom sekaligus antar kartu; JS membacanya agar panjang putaran selalu tepat. */
+.gal{--gap:10px;position:relative;overflow:hidden;display:grid;grid-template-columns:repeat(2,1fr);column-gap:var(--gap);margin:20px 0 0;padding:0 12px}
+.gal::before,.gal::after{content:'';position:absolute;left:0;right:0;z-index:9;pointer-events:none}
+.gal::before{top:0;height:46px;background:linear-gradient(var(--bg),transparent)}
+/* fade bawah lebih tinggi: foto larut ke latar footer tanpa garis batas */
+.gal::after{bottom:0;height:92px;background:linear-gradient(transparent,color-mix(in srgb,var(--bg) 62%,transparent) 55%,var(--bg) 90%)}
 .col{position:relative;min-width:0}
+.cpy{display:flow-root} /* margin bawah kartu terakhir tetap di dalam salinan, jadi panjang putaran = tinggi satu salinan */
 .trk{will-change:transform;animation-timing-function:linear;animation-iteration-count:infinite}
 .trk.up{animation-name:up}.trk.dn{animation-name:dn}
 @keyframes up{to{transform:translateY(calc(var(--p)*-1))}}
 @keyframes dn{from{transform:translateY(calc(var(--p)*-1))}to{transform:translateY(0)}}
-.ph{display:block;margin:0;position:relative;overflow:hidden;background:var(--card);cursor:pointer;animation:pop 1.9s cubic-bezier(.16,.8,.24,1) backwards;animation-delay:calc(var(--d,0)*140ms);transition:transform .7s cubic-bezier(.2,.8,.2,1),box-shadow .7s,filter .7s,opacity .7s;-webkit-tap-highlight-color:transparent}
+.ph{display:block;margin:0 0 var(--gap);border-radius:18px;position:relative;overflow:hidden;background:var(--card);cursor:pointer;animation:pop 1.9s cubic-bezier(.16,.8,.24,1) backwards;animation-delay:calc(var(--d,0)*140ms);transition:transform .7s cubic-bezier(.2,.8,.2,1),box-shadow .7s,filter .7s,opacity .7s;-webkit-tap-highlight-color:transparent}
 /* foto muncul melayang naik, membesar pelan, dan menajam */
 @keyframes pop{from{opacity:0;transform:translateY(44px) scale(.9);filter:blur(7px)}}
 .ph img{display:block;width:100%;height:100%;object-fit:cover}
 .ph .broken{height:100%;display:grid;place-items:center}
-.col:nth-child(1) .ph{transform-origin:15% 50%}
-.col:nth-child(3) .ph{transform-origin:85% 50%}
+.col:nth-child(1) .ph{transform-origin:25% 50%}
+.col:nth-child(2) .ph{transform-origin:75% 50%}
 /* Hover (hanya perangkat dengan kursor): foto yang disorot membesar & mengambang di atas tetangga, kolomnya berhenti sejenak,
    foto lain jadi hitam-putih dan meredup. Di layar sentuh efek ini tidak dipakai (hover menempel setelah ketukan). */
 @media(hover:hover) and (pointer:fine){
@@ -61,6 +64,7 @@ if(location.hash==='#preview'&&parent!==window)document.documentElement.classNam
 /* Pengguna yang meminta gerak dikurangi: tanpa drift & marquee, galeri tampil statis dan utuh */
 @media(prefers-reduced-motion:reduce){
   .gal{height:auto!important}
+  .gal::before,.gal::after{display:none} /* galeri tidak dipotong, jadi tak perlu fade tepi */
   .trk,.mt{animation:none!important}
   .cpy+.cpy,.mi+.mi{display:none}
   .mi{min-width:0}
@@ -104,7 +108,7 @@ if(location.hash==='#preview'&&parent!==window)document.documentElement.classNam
 .hero .evt{position:absolute;z-index:1;left:0;right:0;top:calc(var(--ep,100)*1%);transform:translateY(calc(var(--ep,100)*-1%));padding:16px 20px 22px;text-align:center}
 .evt .orn{margin-bottom:12px}
 .hero .orn::before,.hero .orn::after{width:86px} /* tetap, tidak ikut lebar jendela (22vw) agar sama di HP, bingkai, dan pratinjau */
-footer{padding:26px 20px calc(30px + env(safe-area-inset-bottom))}
+footer{padding:26px 20px calc(30px + env(safe-area-inset-bottom));border-top:0} /* tanpa garis: galeri larut mulus ke footer */
 footer .fc{margin-top:0}
 /* Pratinjau di admin: layar 390px tanpa scrollbar, jarak atas sama dengan bingkai HP (ruang notch) */
 html.pv{--top:40px;scrollbar-width:none}
@@ -205,8 +209,8 @@ else{
 
 /* ===== Galeri (auto-update tiap 8 detik) ===== */
 const RT=[1.34,1,1.5,1.2,.8,1.25,1.4]; // rasio tinggi/lebar foto di grid (dipilih dari ID foto, jadi tetap sama tiap dibuka)
-const SPD=[15,11,13],MQS=12;           // kecepatan drift kolom 1-3 (px/detik) dan marquee teks (px/detik): sengaja super pelan
-let sig='',bw=0,CW=130;
+const NC=2,SPD=[15,11],MQS=12;         // jumlah kolom; kecepatan drift tiap kolom dan marquee teks (px/detik): sengaja super pelan
+let sig='',bw=0,CW=178;
 const hs=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
 function mi(nm,ms,hid){
   const s=document.createElement('span');s.className='mi';if(hid)s.setAttribute('aria-hidden','true');
@@ -230,24 +234,25 @@ function tile(p,h,main,d){
   if(main){f.tabIndex=0;f.onkeydown=e=>{if(e.key==='Enter')o()}} // salinan pengulang tidak ikut tab / pembaca layar
   return f;
 }
-// Susun ulang 3 kolom. Dipanggil hanya bila daftar foto atau lebar layar berubah; posisi drift tiap kolom dipertahankan.
+// Susun ulang kolom. Dipanggil hanya bila daftar foto atau lebar layar berubah; posisi drift tiap kolom dipertahankan.
 function build(){
-  const ps=order,n=ps.length,cw=g.clientWidth/3;
+  const ps=order,n=ps.length,cs=getComputedStyle(g),gap=parseFloat(cs.columnGap)||0;
+  const cw=(g.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0)-gap*(NC-1))/NC; // lebar satu kartu
   const ph=[...g.querySelectorAll('.trk')].map(t=>{const a=t.getAnimations()[0];return a?(a.effect.getComputedTiming().progress||0):0});
   g.textContent='';g.style.height='';bw=g.clientWidth;CW=cw;
-  if(!n||!cw)return;
-  const asc=[...ps].reverse(); // urutan unggah: foto ke-k selalu masuk kolom k%3, jadi foto baru tidak mengacak kolom lain
-  const cols=[0,1,2].map(j=>{
-    let l=asc.filter((_,k)=>k%3===j).reverse(); // di dalam kolom, terbaru di atas
-    if(!l.length)l=[ps[j%n]];                     // kurang dari 3 foto: kolom kosong diisi ulang agar grid tetap penuh
-    const hh=l.map(p=>Math.round(cw*RT[(hs(p.fileId)+j)%RT.length])); // tinggi bulat (px): tanpa garis halus antar foto
-    return{l,hh,p:hh.reduce((a,b)=>a+b,0)};
+  if(!n||!(cw>0))return;
+  const asc=[...ps].reverse(); // urutan unggah: foto ke-k selalu masuk kolom k%NC, jadi foto baru tidak mengacak kolom lain
+  const cols=[...Array(NC).keys()].map(j=>{
+    let l=asc.filter((_,k)=>k%NC===j).reverse(); // di dalam kolom, terbaru di atas
+    if(!l.length)l=[ps[j%n]];                     // foto lebih sedikit dari kolom: kolom kosong diisi ulang agar grid tetap penuh
+    const hh=l.map(p=>Math.round(cw*RT[(hs(p.fileId)+j)%RT.length])); // tinggi bulat (px): tanpa garis halus antar kartu
+    return{l,hh,p:hh.reduce((a,b)=>a+b+gap,0)};  // panjang satu putaran = tinggi semua kartu + gap di bawah tiap kartu
   });
   const H=Math.max(460,Math.min(880,Math.max(...cols.map(c=>c.p)))); // tinggi jendela galeri menyesuaikan jumlah foto
   g.style.height=H+'px';
   cols.forEach((c,j)=>{
     const col=document.createElement('div'),trk=document.createElement('div'),k=Math.ceil(H/c.p)+1,dur=c.p/SPD[j];
-    col.className='col';trk.className='trk '+(j===1?'dn':'up'); // kolom 1 & 3 naik, kolom 2 turun
+    col.className='col';trk.className='trk '+(j%2?'dn':'up'); // kolom 1 naik, kolom 2 turun (bila 3 kolom: naik, turun, naik)
     trk.style.setProperty('--p',c.p+'px');trk.style.animationDuration=dur+'s';trk.style.animationDelay=-(ph[j]||0)*dur+'s';
     for(let r=0;r<k;r++){
       const cp=document.createElement('div');cp.className='cpy';
